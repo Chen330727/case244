@@ -59,6 +59,8 @@ extern face vector ulf, ugf, usf, usfg;
 extern scalar T,Tlff,Tgff;
 extern scalar source_pc,source_pc2;
 extern double Tsat00;
+extern int level_interface;
+extern bool sigma_in_project;
 #define EPS 0.0000000001
 /**
 In the case of variable density, the user will need to define both the

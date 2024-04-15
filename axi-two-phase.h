@@ -31,6 +31,8 @@ extern scalar fs_solid;
 extern face vector fss_test3_n;
 extern scalar topo_mask_s;
 extern scalar intersect_true;
+extern bool flag_rho;
+extern bool sigma_in_project;
 #define is_solid(vv) vv>0.0
 #define is_solid2(vv) vv>0.5
 /**
@@ -129,10 +131,12 @@ event tracer_advection (i++)
 #endif
 }
 
+scalar true_interface[];
+
 event properties (i++)
 {
 
-  scalar true_interface[];
+  // scalar true_interface[];
   foreach(){
       true_interface[]=0;
       bool flag=false;
@@ -149,8 +153,23 @@ event properties (i++)
       }
   }
 
-  bool flag_rho=true;
+  // bool flag_rho=true;
 #if EMBED
+if(sigma_in_project){
+          // viscosity_ghost_fluid1();
+        //rho for momemtum equation, in solid rho=0
+          foreach(){
+              if(flag_rho){
+                  if(topo_mask_s[]==0 && (ff[]>0.0 && ff[]<1.0) && (true_interface[]!=1)){
+                      rhov[] = cm[]*rho(1.0);
+                  }else{
+                      rhov[] = cm[]*rho(sf[]); 
+                  }
+              }else{
+                  rhov[] = cm[]*rho(sf[]); 
+              }
+          }
+    }else{
       if(flag_rho){
         foreach_face() {    
                   //alphav and mu for momemtum equation, in solid value=0
@@ -173,6 +192,7 @@ event properties (i++)
                     face vector muv = mu;
                     //muv.x[] = fss_test3_n.x[]*mu(fff1);
                     muv.x[] = fm.x[]*mu(fff1);
+                    // mu_f.x[] = fm.x[]*mu2(fff1);
                   }
         }
       }else{
@@ -191,6 +211,20 @@ event properties (i++)
             }
         }
       }
+        
+    //rho for momemtum equation, in solid rho=0
+      foreach(){
+          if(flag_rho){
+              if(topo_mask_s[]==0 && (ff[]>0.0 && ff[]<1.0) && (true_interface[]!=1)){
+                  rhov[] = cm[]*rho(1.0);
+              }else{
+                  rhov[] = cm[]*rho(sf[]); 
+              }
+          }else{
+              rhov[] = cm[]*rho(sf[]); 
+          }
+      }
+    }
         
 
 

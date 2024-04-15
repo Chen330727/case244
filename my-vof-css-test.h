@@ -815,7 +815,7 @@ if(modify_near_region[]>0 && cs[]>0.0){
           double fff = t[i]/ci + s*min(1., 1. - s*un)*gf[i]*Delta/2.;
           tflux[] = fff*cf1*ulf.x[];
           if(!t.inverse){
-            flux_show.x[]=tflux[];
+            // flux_show.x[]=tflux[];
               // flux_out[] = tflux[];
               // flux_temp[] = tflux[];
               // if(fabs(x-tracex+delta_min/2.0*2)<1e-6 && fabs(y-tracey)<1e-6){

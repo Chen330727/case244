@@ -200,7 +200,7 @@ foreach() {
 	          }
         }
     foreach_face (x){
-          if(complete1.x[]==3 && modphase1.x[]>HUGE/2.0){
+          if((complete1.x[]==3 && modphase1.x[]>HUGE/2.0) || complete1.x[] == 5){
                double c_temp[3][3];
                for(int i0=-1;i0<2;i0++){
                   for(int j0=-1;j0<2;j0++){
@@ -223,13 +223,36 @@ foreach() {
                                     
                                 a_right=(coord){-0.5,-0.5};
                                 b_right=(coord){0.5,0.5};   
-                              
+                              double n_temp0_abs=0;
+                            n_temp0_abs = sqrt(n_temp0.x*n_temp0.x+n_temp0.y*n_temp0.y);
+                            if(fabs(n_temp0_abs)>0){
                                 b_left.x = 0.0;
                                 leftvolume=rectangle_fraction(n_temp,alpha_temp,a_left,b_left)*(b_left.x-a_left.x);        
+                            }else{
+                                if(ff4[i0-1,j0]>=1){
+                                    leftvolume=0.5;
+                                }else if(ff4[i0-1,j0]<=0){
+                                    leftvolume=0;
+                                }else{
+                                    leftvolume=ff4[i0-1,j0]/2.0;
+                                }
+                            }
+                            double n_temp_abs=0;
+                            n_temp_abs = sqrt(n_temp.x*n_temp.x+n_temp.y*n_temp.y);
+                            if(fabs(n_temp_abs)>0){
                                 a_right.x = 0.0;
                                 rightvolume=rectangle_fraction(n_temp0,alpha_temp0,a_right,b_right)*(b_right.x-a_right.x);  
-                                                  
+                            }else{
+                               if(ff4[i0,j0]>=1){
+                                    leftvolume=0.5;
+                                }else if(ff4[i0,j0]<=0){
+                                    leftvolume=0;
+                                }else{
+                                    leftvolume=ff4[i0,j0]/2.0;
+                                }
+                            }
                                 c_temp[i0+1][j0+1] = rightvolume + leftvolume;
+                                // printf("leftvolume=%g,rightvolume=%g c=%g\n",leftvolume,rightvolume,rightvolume + leftvolume);  
                           //}// foreach_dimension
                   } //for j0
                 } //for i0
@@ -260,7 +283,7 @@ foreach() {
           }//complete.x==3
   } //foreach_face
     foreach_face (y){
-          if(complete1.y[]==3 && modphase1.y[]>HUGE/2.0){
+          if((complete1.y[]==3 && modphase1.y[]>HUGE/2.0) || complete1.y[]==5){
                double c_temp[3][3];
                for(int i0=-1;i0<2;i0++){
                   for(int j0=-1;j0<2;j0++){
@@ -284,12 +307,34 @@ foreach() {
                               
                           a_right=(coord){-0.5,-0.5};
                           b_right=(coord){0.5,0.5};
-                        
+                        double n_temp0_abs=0;
+                      n_temp0_abs = sqrt(n_temp0.x*n_temp0.x+n_temp0.y*n_temp0.y);
+                       if(fabs(n_temp0_abs)>0){  
                           b_left.y = 0.0;
                           leftvolume=rectangle_fraction(n_temp,alpha_temp,a_left,b_left)*(b_left.y-a_left.y);        
+                       }else{
+                          if(ff4[i0,j0-1]>=1){
+                                    leftvolume=0.5;
+                                }else if(ff4[i0,j0-1]<=0){
+                                    leftvolume=0;
+                                }else{
+                                    leftvolume=ff4[i0,j0-1]/2.0;
+                                }
+                       }
+                       double n_temp_abs=0;
+                        n_temp_abs = sqrt(n_temp.x*n_temp.x+n_temp.y*n_temp.y);
+                       if(fabs(n_temp_abs)>0){
                           a_right.y = 0.0;
                           rightvolume=rectangle_fraction(n_temp0,alpha_temp0,a_right,b_right)*(b_right.y-a_right.y);  
-                                            
+                       }else{
+                          if(ff4[i0,j0]>=1){
+                                    leftvolume=0.5;
+                                }else if(ff4[i0,j0]<=0){
+                                    leftvolume=0;
+                                }else{
+                                    leftvolume=ff4[i0,j0]/2.0;
+                                }
+                       }          
                           c_temp[i0+1][j0+1] = rightvolume + leftvolume;
                             //}// foreach_dimension
                   } //for j0
@@ -377,6 +422,760 @@ foreach() {
 
 
 
+// // // // extern vector complete1_show;
+
+
+// // // // // void get_modphase01_3(scalar ff4, face vector modphase1, face vector modphase0, face vector modphasexyl, face vector modphaser,vector nn4,scalar area4){
+// // // //   void get_modphase01_3(scalar ff4, face vector modphase1, face vector modphase0, face vector modphasexyl, face vector modphaser,vector nn4){
+
+
+// // // // //check mod//initial
+// // // // // foreach(){
+// // // // //     foreach_dimension(){
+// // // // //       smallmodl.x[]=-10.0;
+// // // // //       bigmodl.x[]=-10.0;
+// // // // //       smallmodg.x[]=-10.0;
+// // // // //       bigmodg.x[]=-10.0;
+
+// // // // //     }
+// // // // // }
+// // // // ///////////////
+    
+    
+// // // //     // scalar ff4=q.ff4;
+// // // //     // face vector modphase1=q.modphase1;
+// // // //     // face vector modphase0=q.modphase0;
+// // // //     // scalar Tl=q.Tl;
+// // // //     vector hhh[];
+// // // //     heights(ff4,hhh);
+// // // //     // vector nn4[];
+// // // //     scalar alpha4[];
+// // // //     scalar area4[];
+// // // //      foreach_dimension()
+// // // //         nn4.x.refine = nn4.x.prolongation = refine_injection;
+
+// // // //     // vector hhh=q.hhh;
+// // // //     // foreach(){
+// // // //     //    ff4[]=ff[];
+// // // //     // }   
+// // // //     // ff4.restriction = restriction_volume_average;
+// // // //     // ff4.restriction = restriction_volume_average;
+// // // //     ff4.refine = ff4.prolongation = fraction_refine;
+    
+// // // //     boundary({hhh});
+    
+// // // //     restriction({ff4});
+
+// // // // //taken from restruction
+// // // // foreach() {
+// // // //     area4[] = arealg[];
+// // // //     if (ff4[] <= 0. || ff4[] >= 1.) {
+// // // //       alpha4[] = 0.;
+// // // //       // area4[]=0.0;
+// // // //       foreach_dimension()
+// // // // 	       nn4.x[] = 0.;
+// // // //       }else{
+// // // //       coord m = interface_normal3 (point, ff4, hhh);
+// // // //       foreach_dimension()
+// // // // 	        nn4.x[] = m.x;
+// // // //       // alpha4[] = plane_alpha (ff4[], m);
+// // // //       // coord temp;
+// // // //       // double area = plane_area_center (m, alpha4[], &temp);
+// // // //       // if (metric_embed_factor)  
+// // // //       //       area *= metric_embed_factor (point, temp);
+// // // //       // area4[] = area;
+// // // //     }
+// // // //   }
+
+// // // // #if TREE
+// // // //   foreach_dimension()
+// // // //     nn4.x.refine = nn4.x.prolongation = refine_injection;
+
+// // // //   alpha4.n = nn4;
+// // // //   alpha4.refine = alpha4.prolongation = alpha_refine;
+// // // // #endif
+  
+
+// // // //   //double lim_cut = 1e-12;
+// // // //   double lim_cut = 1e-2;
+// // // //   restriction({ff4,nn4,alpha4});
+// // // //   face vector complete1[];
+// // // //   // for(int l=0;l<=depth();l++){
+// // // //   //      foreach_level(l){
+// // // //   //         foreach_dimension(){
+// // // //   //             complete1.x[] = 0;
+// // // //   //             modphase1.x[] = HUGE;
+// // // //   //             modphase0.x[] = HUGE;
+// // // //   //             Point neib = neighborp(1);
+// // // //   //             if(is_boundary(neighbor(1))){
+// // // //   //                  foreach_neighbor(1){
+// // // //   //                     if(point.i==neib.i && point.j==neib.j && point.k==neib.k){
+// // // //   //                        modphase1.x[] = HUGE;
+// // // //   //                        modphase0.x[] = HUGE;
+// // // //   //                        complete1.x[] = 0;
+// // // //   //                     }
+// // // //   //                  }
+// // // //   //             }
+// // // //   //         }
+// // // //   //      }
+// // // //   // }
+
+// // // //   foreach_face(){
+// // // //           complete1.x[] = 0;
+// // // //           modphase1.x[] = HUGE;
+// // // //           modphase0.x[] = HUGE;
+// // // //           modphasexyl.x[] = HUGE;
+// // // //           modphasexyr.x[] = HUGE;
+// // // //   }
+// // // //   // for(int l=0;l<=depth();l++){
+// // // //   //    foreach_level(l){
+// // // //   //        foreach_dimension(){
+// // // //           foreach_face(){
+// // // //                if((ff4[-1]==0.0 && ff4[]==1.0) || (ff4[-1]==1.0 && ff4[]==0.0)){
+// // // //                      modphase1.x[]=0.5;
+// // // //                      modphase0.x[]=0.5;
+// // // //                      modphasexyl.x[]=0.5;
+// // // //                      modphasexyr.x[]=0.5;
+// // // //                      complete1.x[] = 6;
+// // // //                 }else if( (is_phase(ff4[-1]) && !is_phase(ff4[])) || (!is_phase(ff4[-1]) && is_phase(ff4[]))){ // 
+// // // //                     complete1.x[]=3;
+// // // // 		                 if((is_phase(ff4[-1]) && !is_phase(ff4[])) && orientation(hhh.x[])==0){ // get from height,(1 0)           
+// // // //                         if(height(hhh.x[])>-1.0 && height(hhh.x[])<0.0){
+// // // // 		                      modphase0.x[]=fabs(height(hhh.x[]));
+// // // //                           modphase1.x[]=1.0-modphase0.x[];
+// // // //                           modphasexyl.x[] = modphase1.x[];
+// // // //                           modphasexyr.x[] = 1 -modphasexyl.x[];
+// // // //                           complete1.x[]=2;
+// // // //                          }
+                       
+// // // // 		                 }else if((!is_phase(ff4[-1]) && is_phase(ff4[])) && orientation(hhh.x[])==1){ // 0 1
+// // // // 	                       if(height(hhh.x[])<0.0 && height(hhh.x[]>-1.0)){
+// // // //                            modphase1.x[]=fabs(height(hhh.x[]));
+// // // //                            modphase0.x[]=1.0-modphase1.x[];
+// // // //                            modphasexyl.x[] = modphase0.x[];
+// // // //                            modphasexyr.x[] = 1 - modphasexyl.x[];
+// // // //                            complete1.x[]=2;
+// // // //                           }
+// // // // 		                 }
+// // // //                  if(complete1.x[]==3){ // get from middle cell
+// // // // 		                 if((is_phase(ff4[-1]) && !is_phase(ff4[])) && orientation(hhh.x[-1])==0){ // get from height,(1 0)           
+// // // //                         if(height(hhh.x[-1])>0.0 && height(hhh.x[-1])<1.0){
+// // // // 		                      modphase1.x[]=fabs(height(hhh.x[-1]));
+// // // //                           modphase0.x[]=1.0-modphase1.x[];
+
+// // // //                           modphasexyl.x[] = modphase1.x[];
+// // // //                           modphasexyr.x[] = 1 -modphasexyl.x[];
+// // // //                           complete1.x[]=2;
+// // // //                          }
+                       
+// // // // 		                 }else if((!is_phase(ff4[-1]) && is_phase(ff4[])) && orientation(hhh.x[-1])==1){ // 0 1
+// // // // 	                       if(height(hhh.x[-1])>0.0 && height(hhh.x[-1]<1.0)){
+// // // //                            modphase0.x[]=fabs(height(hhh.x[-1]));
+// // // //                            modphase1.x[]=1.0-modphase0.x[];
+
+// // // //                            modphasexyl.x[] = modphase0.x[];
+// // // //                            modphasexyr.x[] = 1 - modphasexyl.x[];
+// // // //                            complete1.x[]=2;
+// // // //                           }
+// // // // 		                 }
+// // // //                    }
+// // // //                   // if(complete1.x[]==2 && (modphase1.x[]<lim_cut)){
+// // // //                   //            modphase1.x[] = lim_cut;
+// // // //                   //            modphase0.x[] = 1.0 - modphase1.x[];
+// // // //                   //            complete1.x[] = 5;
+// // // //                   //   }else if(complete1.x[]==2 && (modphase1.x[]>1.0-lim_cut)){
+// // // //                   //            modphase1.x[] = 1.0 - lim_cut;
+// // // //                   //            modphase0.x[] = 1.0 - modphase1.x[];
+// // // //                   //            complete1.x[] = 5;
+// // // //                   //  } 
+                  
+// // // //                   //  if(complete1.x[]==2 && (modphasexyl.x[]<lim_cut)){
+// // // //                   //            modphase1.x[] = lim_cut;
+// // // //                   //            modphase0.x[] = 1.0 - modphase1.x[];
+// // // //                   //            complete1.x[] = 5;
+// // // //                   //   }else if(complete1.x[]==2 && (modphasexyl.x[]>1.0-lim_cut)){
+// // // //                   //            modphase1.x[] = 1.0 - lim_cut;
+// // // //                   //            modphase0.x[] = 1.0 - modphase1.x[];
+// // // //                   //            complete1.x[] = 5;
+// // // //                   //  } 
+// // // //                   //  modphase1.x[] = lim_cut;
+// // // //                             //  modphase0.x[] = 1.0 - modphase1.x[];
+// // // //                             if(modphase1.x[]<=0 || modphase1.x[]>=1){
+// // // //                                 modphase1.x[]=1;
+// // // //                                 modphase0.x[]=1;
+// // // //                                 modphasexyl.x[]=1;
+// // // //                                 modphasexyr.x[]=1;
+// // // //                                 complete1.x[] = 5;
+// // // //                             }
+// // // // 	           }else{
+// // // //                   modphase1.x[] = 1.0;
+// // // //                   modphase0.x[] = 1.0;
+
+// // // //                   modphasexyl.x[] = 1;
+// // // //                   modphasexyr.x[] = 1;
+// // // //                   complete1.x[] = 7;
+// // // // 	          }
+             
+                            
+                             
+                    
+// // // //         }
+// // // //     foreach_face (x){
+// // // //           if((complete1.x[]==3 && modphase1.x[]>HUGE/2.0) || complete1.x[]==5){
+// // // //                double c_temp[3][3];
+// // // //                for(int i0=-1;i0<2;i0++){
+// // // //                   for(int j0=-1;j0<2;j0++){
+// // // //                             //coord leftvolume,rightvolume;  //different from linear2.h, rifhtvolume is the right volume of -1; left volume if left volume of 0;
+// // // //                             double leftvolume,rightvolume;
+// // // //                             coord a_left,b_left;
+// // // //                             coord a_right,b_right;
+// // // //                             coord n_temp;
+// // // //                             n_temp.x = nn4.x[i0,j0], n_temp.y = nn4.y[i0,j0];
+
+// // // //                             coord n_temp0;
+// // // //                             n_temp0.x = nn4.x[i0-1,j0], n_temp0.y = nn4.y[i0-1,j0];
+// // // //                             double alpha_temp = alpha4[i0,j0];
+// // // //                             double alpha_temp0 = alpha4[i0-1,j0];
+// // // //                             //foreach_dimension(){
+                                
+// // // //                                 a_left=(coord){-0.5,-0.5};
+// // // //                                 b_left=(coord){0.5,0.5};
+                                
+                                    
+// // // //                                 a_right=(coord){-0.5,-0.5};
+// // // //                                 b_right=(coord){0.5,0.5};   
+// // // //                                double n_temp0_abs=0;
+// // // //                             n_temp0_abs = sqrt(n_temp0.x*n_temp0.x+n_temp0.y*n_temp0.y);
+// // // //                             if(fabs(n_temp0_abs)>0){
+// // // //                                 b_left.x = 0.0;
+// // // //                                 leftvolume=rectangle_fraction(n_temp,alpha_temp,a_left,b_left)*(b_left.x-a_left.x);        
+// // // //                             }else{
+// // // //                                 if(ff4[i0-1,j0]>=1){
+// // // //                                     leftvolume=0.5;
+// // // //                                 }else if(ff4[i0-1,j0]<=0){
+// // // //                                     leftvolume=0;
+// // // //                                 }else{
+// // // //                                     leftvolume=ff4[i0-1,j0]/2.0;
+// // // //                                 }
+// // // //                             }
+// // // //                             double n_temp_abs=0;
+// // // //                             n_temp_abs = sqrt(n_temp.x*n_temp.x+n_temp.y*n_temp.y);
+// // // //                             if(fabs(n_temp_abs)>0){
+// // // //                                 a_right.x = 0.0;
+// // // //                                 rightvolume=rectangle_fraction(n_temp0,alpha_temp0,a_right,b_right)*(b_right.x-a_right.x);  
+// // // //                             }else{
+// // // //                                if(ff4[i0,j0]>=1){
+// // // //                                     leftvolume=0.5;
+// // // //                                 }else if(ff4[i0,j0]<=0){
+// // // //                                     leftvolume=0;
+// // // //                                 }else{
+// // // //                                     leftvolume=ff4[i0,j0]/2.0;
+// // // //                                 }
+// // // //                             }
+                                                  
+// // // //                                 c_temp[i0+1][j0+1] = rightvolume + leftvolume;
+// // // //                           //}// foreach_dimension
+// // // //                   } //for j0
+// // // //                 } //for i0
+// // // //                 //I am here
+// // // //                 coord n_middle = mycs2(c_temp);//in myc2d.h //mycs3(c_temp);  //get normal from middle volume distribution
+// // // //                 double c_middle = c_temp[0+1][0+1];
+// // // //                 double alpha_middle = plane_alpha(c_middle,n_middle);
+// // // //                 double test=0;
+                
+// // // //                 if(fabs(n_middle.x) > 1e-12){ //n.x x + n.y y = alpha y=0 kan x
+// // // // 	           test =  alpha_middle/n_middle.x - (-0.5);
+// // // // 		   // fprintf(fp18,"nnx=%g nny=%g test=%g\n",nn.x,nn.y,test);
+// // // //                 }
+// // // //                 if(c_middle<=0 || c_middle>=1){
+// // // //                     modphasexyl.x[] = 1;
+// // // //                     modphasexyr.x[] = 1;
+
+// // // //                      modphasexyl.z[] = 1;
+// // // //                     modphasexyr.x[] = 1;
+
+// // // //                     complete1.x[] = 8;     
+// // // //                 }else{
+// // // //                     if(test<=0 || test>=1){
+// // // //                         modphase1.x[]=1;
+// // // //                         modphase0.x[]=1;  
+
+// // // //                         modphasexyl.x[] = 1;
+// // // //                         modphasexyr.x[] = 1;
+// // // //                         complete1.x[] = 8;     
+// // // //                     }else{
+// // // //                         modphase1.x[]=test;
+// // // //                         modphase0.x[]=1.0-modphase1.x[];  
+
+// // // //                         if(n_middle.x>0){
+// // // //                           modphasexyl.x[] = test;
+// // // //                           modphasexyr.x[] = 1-test;
+// // // //                           complete1.x[] = 4;     
+// // // //                         }else if(n_middle.x<0){
+// // // //                           modphasexyl.x[] = 1-test;
+// // // //                           modphasexyr.x[] = test;
+// // // //                           complete1.x[] = 4;     
+// // // //                         }else{ //==0
+// // // //                           modphase1.x[]=1;
+// // // //                           modphase0.x[]=1;  
+
+// // // //                           modphasexyl.x[] = 1;
+// // // //                           modphasexyr.x[] = 1;
+// // // //                           complete1.x[] = 8;     
+// // // //                         }
+// // // //                     }
+// // // //                 }
+
+
+
+// // // //            //     double lim_cut = 1e-13;
+// // // //                 // if(test>lim_cut && test<1-lim_cut)
+// // // //                 //   {
+// // // //                 //         test = test;
+// // // //                 //   }else if(test>1.0-lim_cut){
+// // // //                 //         test = 1.0 - lim_cut;
+// // // //                 //   }else if(test<lim_cut){
+// // // //                 //         test = lim_cut;
+// // // //                 //   }
+
+// // // //                 // modphase1.x[]=test;
+// // // //                 // modphase0.x[]=1.0-modphase1.x[];  
+// // // //                 //complete.x = 4; 
+                      
+// // // //    //
+// // // //           }//complete.x==3
+// // // //           if(complete1.x[]==8){
+// // // //               coord n_temp;
+// // // //               n_temp.x = nn4.x[], n_temp.y = nn4.y[];
+
+// // // //               coord n_temp0;
+// // // //               n_temp0.x = nn4.x[-1,0], n_temp0.y = nn4.y[-1,0];
+// // // //               double alpha_temp = alpha4[];
+// // // //               double alpha_temp0 = alpha4[-1,0];
+              
+// // // //                double test0=0;
+                
+// // // //                 if(fabs(n_temp0.x) > 1e-12){ //n.x x + n.y y = alpha y=0 kan x
+// // // // 	                 test0 =  alpha_temp0/n_temp0.x;
+
+// // // //                         if(n_temp0.x>0){
+// // // //                           if(test0>=0.5){
+// // // //                               test0=0.5; //left
+// // // //                               test0=0.5-test0; //right
+// // // //                           }else if(test0<=0){
+// // // //                               test0=0; //left
+// // // //                               test0=0.5-0; //right
+// // // //                           }else{
+// // // //                               test0=test0;//left
+// // // //                               test0=0.5-test0;//right
+// // // //                           }
+// // // //                           // modphasexyl.x[] = test;
+// // // //                           // modphasexyr.x[] = 1-test;
+// // // //                           // complete1.x[] = 4;     
+// // // //                         }else if(n_temp0.x<0){  
+// // // //                            if(test0>=0.5){
+// // // //                               test0=0.5; //right
+// // // //                           }else if(test0<=0){
+// // // //                               test0=0; //right
+// // // //                           }else{
+// // // //                               test0=0.5-test0;//left
+// // // //                               test0= 0.5-test0;//right
+// // // //                           }
+// // // //                           // modphasexyl.x[] = 1-test;
+// // // //                           // modphasexyr.x[] = test;
+// // // //                           // complete1.x[] = 4  
+// // // //                         }else{ //==0
+// // // //                           if(ff4[-1,0]<=0){
+// // // //                               // left 0->1
+// // // //                               test0=-1;//() gas;
+// // // //                           }else if(ff4[-1,0]>=1){
+// // // //                               test0=-2;// liquid
+// // // //                           }    
+// // // //                         }
+                    
+// // // //                 }
+
+// // // //             double test=0;
+                
+// // // //                 if(fabs(n_temp.x) > 1e-12){ //n.x x + n.y y = alpha y=0 kan x
+// // // // 	                 test =  alpha_temp/n_temp.x;
+
+// // // //                        if(n_temp.x>0){
+// // // //                           if(test>=0){
+// // // //                               test=0.5; //left
+// // // //                               // test0=0.5-test0; //right
+// // // //                           }else if(test<=-0.5){
+// // // //                               test=0; //left
+// // // //                               // test0=0.5-0; //right
+// // // //                           }else{
+// // // //                               test=test-(-0.5);//left
+// // // //                               // test0=0.5-test0;//right
+// // // //                           }
+// // // //                           // modphasexyl.x[] = test;
+// // // //                           // modphasexyr.x[] = 1-test;
+// // // //                           // complete1.x[] = 4;     
+// // // //                         }else if(n_temp.x<0){
+// // // //                           if(test>=0.5){
+// // // //                               test=0; //left
+// // // //                           }else if(test<=0){
+// // // //                               test=0.5; //left
+// // // //                           }else{
+// // // //                               test=0.5-test;//left
+// // // //                               // test0= 0.5-test0//right
+// // // //                           }
+// // // //                           // modphasexyl.x[] = 1-test;
+// // // //                           // modphasexyr.x[] = test;
+// // // //                           // complete1.x[] = 4;         
+// // // //                         }else{ //==0
+// // // //                           if(ff4[]<=0){
+// // // //                               // left 0->1
+// // // //                               test=-1;//() gas;
+// // // //                           }else if(ff4[]>=1){
+// // // //                               test=-2;// liquid
+// // // //                           }    
+// // // //                         }
+                    
+// // // //                 }
+// // // //                 if(test0==(-1) && test==(-1)){
+// // // //                     modphasexyl.x[]=1;
+// // // //                     modphasexyr.x[]=1;
+// // // //                 }else if(test0==(-2) && test==(-2)){
+// // // //                     modphasexyl.x[]=1;
+// // // //                     modphasexyr.x[]=1;
+// // // //                 }else if((test0==(-2) && test==(-1))||(test0==(-1) && test==(-2))){
+// // // //                     modphasexyl.x[]=0.5;
+// // // //                     modphasexyr.x[]=0.5;
+// // // //                 }else {
+// // // //                     if(test0==-1 || test0==-2){
+// // // //                         test0=0.5;
+// // // //                     }
+// // // //                     if(test==-1 || test==-2){
+// // // //                         test=0.5;
+// // // //                     }
+// // // //                     modphasexyl.x[]=test0+test;
+// // // //                     if(modphasexyl.x[]<=0 || modphasexyl.x[]>=1){
+// // // //                         modphasexyl.x[]=1;
+// // // //                         modphasexyr.x[]=1;
+// // // //                     }else{
+// // // //                         modphasexyr.x[]=1.0-modphasexyl.x[];
+// // // //                     }
+// // // //                 }
+// // // //                 complete1.x[]=9;
+// // // //           }
+// // // //   } //foreach_face
+// // // //     foreach_face (y){
+// // // //           if((complete1.y[]==3 && modphase1.y[]>HUGE/2.0) || (complete1.y[]==5) ){
+// // // //                double c_temp[3][3];
+// // // //                for(int i0=-1;i0<2;i0++){
+// // // //                   for(int j0=-1;j0<2;j0++){
+// // // //                           //coord leftvolume,rightvolume;  //different from linear2.h, rifhtvolume is the right volume of -1; left volume if left volume of 0;
+// // // //                           double leftvolume,rightvolume;
+// // // //                           coord a_left,b_left;
+// // // //                           coord a_right,b_right;
+// // // //                               //coord n_temp= interface_normal (point, ff);
+// // // //                           coord n_temp;
+// // // //                           n_temp.x = nn4.x[i0,j0], n_temp.y = nn4.y[i0,j0];
+// // // //                           coord n_temp0;
+// // // //                           n_temp0.x = nn4.x[i0,j0-1], n_temp0.y = nn4.y[i0,j0-1];
+// // // //                               //double alpha_temp = plane_alpha (ff[], n_temp);
+// // // //                           double alpha_temp = alpha4[i0,j0];
+// // // //                           double alpha_temp0 = alpha4[i0,j0-1];
+// // // //                               //foreach_dimension(){
+                              
+// // // //                           a_left=(coord){-0.5,-0.5};
+// // // //                           b_left=(coord){0.5,0.5};
+                          
+                              
+// // // //                           a_right=(coord){-0.5,-0.5};
+// // // //                           b_right=(coord){0.5,0.5};
+// // // //                         double n_temp0_abs=0;
+// // // //                       n_temp0_abs = sqrt(n_temp0.x*n_temp0.x+n_temp0.y*n_temp0.y);
+// // // //                        if(fabs(n_temp0_abs)>0){  
+// // // //                           b_left.y = 0.0;
+// // // //                           leftvolume=rectangle_fraction(n_temp,alpha_temp,a_left,b_left)*(b_left.y-a_left.y);        
+// // // //                        }else{
+// // // //                           if(ff4[i0,j0-1]>=1){
+// // // //                                     leftvolume=0.5;
+// // // //                                 }else if(ff4[i0,j0-1]<=0){
+// // // //                                     leftvolume=0;
+// // // //                                 }else{
+// // // //                                     leftvolume=ff4[i0,j0-1]/2.0;
+// // // //                                 }
+// // // //                        }
+// // // //                        double n_temp_abs=0;
+// // // //                         n_temp_abs = sqrt(n_temp.x*n_temp.x+n_temp.y*n_temp.y);
+// // // //                        if(fabs(n_temp_abs)>0){
+// // // //                           a_right.y = 0.0;
+// // // //                           rightvolume=rectangle_fraction(n_temp0,alpha_temp0,a_right,b_right)*(b_right.y-a_right.y);  
+// // // //                        }else{
+// // // //                           if(ff4[i0,j0]>=1){
+// // // //                                     leftvolume=0.5;
+// // // //                                 }else if(ff4[i0,j0]<=0){
+// // // //                                     leftvolume=0;
+// // // //                                 }else{
+// // // //                                     leftvolume=ff4[i0,j0]/2.0;
+// // // //                                 }
+// // // //                        }                   
+// // // //                           c_temp[i0+1][j0+1] = rightvolume + leftvolume;
+// // // //                             //}// foreach_dimension
+// // // //                   } //for j0
+// // // //                 } //for i0
+// // // //                 coord n_middle = mycs2(c_temp);//in myc2d.h //mycs3(c_temp);  //get normal from middle volume distribution
+// // // //                 double c_middle = c_temp[0+1][0+1];
+// // // //                 double alpha_middle = plane_alpha(c_middle,n_middle);
+// // // //                 double test=0;;
+// // // //                 if(fabs(n_middle.y) > 1e-12){
+// // // // 	                   test =  alpha_middle/n_middle.y - (-0.5);
+// // // // 		                 // fprintf(fp18,"nnx=%g nny=%g test=%g\n",nn.x,nn.y,test);
+// // // //                 } 
+// // // //              //   double lim_cut = 1e-13;
+
+// // // //                 if(c_middle<=0 || c_middle>=1){
+// // // //                     modphase1.y[]=1;
+// // // //                     modphase0.y[]=1;
+
+// // // //                     modphasexyl.y[] = 1;
+// // // //                     modphasexyr.y[] = 1;
+
+// // // //                     complete1.y[]=8;
+// // // //                 }else{
+// // // //                     if(test<=0 || test>=1){
+// // // //                         modphase1.y[]=1;
+// // // //                         modphase0.y[]=1;
+
+// // // //                         modphasexyl.y[] = 1;
+// // // //                         modphasexyr.y[] = 1;
+
+// // // //                         complete1.y[]=8;
+// // // //                     }else{
+// // // //                        modphase1.y[]=test;
+// // // //                        modphase0.y[]=1.0-modphase1.y[];
+
+// // // //                        if(n_middle.y>0){
+// // // //                           modphasexyl.y[] = test;
+// // // //                           modphasexyr.y[] = 1-test;
+
+// // // //                            complete1.y[] = 4;   
+// // // //                         }else if(n_middle.y<0){
+// // // //                           modphasexyl.y[] = 1-test;
+// // // //                           modphasexyr.y[] = test;
+// // // //                            complete1.y[] = 4;   
+// // // //                         }else{ //==0
+// // // //                           modphase1.y[]=1;
+// // // //                           modphase0.y[]=1;
+
+
+// // // //                           modphasexyl.y[] = 1;
+// // // //                           modphasexyr.y[] = 1;
+// // // //                            complete1.y[] = 8;   
+// // // //                         }
+// // // //                     }
+// // // //                 }
+
+
+
+// // // //                 // if(test>lim_cut && test<1-lim_cut)
+// // // //                 //   {
+// // // //                 //         test = test;
+// // // //                 //   }else if(test>1.0-lim_cut){
+// // // //                 //         test = 1.0 - lim_cut;
+// // // //                 //   }else if(test<lim_cut){
+// // // //                 //         test = lim_cut;
+// // // //                 //   }
+
+// // // //                 // modphase1.y[]=test;
+// // // //                 // modphase0.y[]=1.0-modphase1.y[];
+// // // //                // complete.y = 4; 
+                           
+// // // //    //           
+// // // //           }// complete.y==3
+// // // //          if(complete1.y[]==8){
+// // // //               coord n_temp;
+// // // //               n_temp.x = nn4.x[], n_temp.y = nn4.y[];
+
+// // // //               coord n_temp0;
+// // // //               n_temp0.x = nn4.x[0,-1], n_temp0.y = nn4.y[0,-1];
+// // // //               double alpha_temp = alpha4[];
+// // // //               double alpha_temp0 = alpha4[0,-1];
+              
+// // // //                double test0=0;
+                
+// // // //                 if(fabs(n_temp0.y) > 1e-12){ //n.x x + n.y y = alpha y=0 kan x
+// // // // 	                 test0 =  alpha_temp0/n_temp0.y;
+
+// // // //                         if(n_temp0.y>0){
+// // // //                           if(test0>=0.5){
+// // // //                               test0=0.5; //left
+// // // //                               test0=0.5-test0; //right
+// // // //                           }else if(test0<=0){
+// // // //                               test0=0; //left
+// // // //                               test0=0.5-0; //right
+// // // //                           }else{
+// // // //                               test0=test0;//left
+// // // //                               test0=0.5-test0;//right
+// // // //                           }
+// // // //                           // modphasexyl.x[] = test;
+// // // //                           // modphasexyr.x[] = 1-test;
+// // // //                           // complete1.x[] = 4;     
+// // // //                         }else if(n_temp0.y<0){
+// // // //                            if(test0>=0.5){
+// // // //                               test0=0.5; //right
+// // // //                           }else if(test0<=0){
+// // // //                               test0=0; //right
+// // // //                           }else{
+// // // //                               test0=0.5-test0;//left
+// // // //                               test0= 0.5-test0;//right
+// // // //                           }
+// // // //                           // modphasexyl.x[] = 1-test;
+// // // //                           // modphasexyr.x[] = test;
+// // // //                           // complete1.x[] = 4;     
+// // // //                         }else{ //==0
+// // // //                           if(ff4[0,-1]<=0){
+// // // //                               // left 0->1
+// // // //                               test0=-1;//() gas;
+// // // //                           }else if(ff4[0,-1]>=1){
+// // // //                               test0=-2;// liquid
+// // // //                           }    
+// // // //                         }
+                    
+// // // //                 }
+
+// // // //             double test=0;
+                
+// // // //                 if(fabs(n_temp.y) > 1e-12){ //n.x x + n.y y = alpha y=0 kan x
+// // // // 	                 test =  alpha_temp/n_temp.y;
+
+// // // //                        if(n_temp.y>0){
+// // // //                           if(test>=0){
+// // // //                               test=0.5; //left
+// // // //                               // test0=0.5-test0; //right
+// // // //                           }else if(test<=-0.5){
+// // // //                               test=0; //left
+// // // //                               // test0=0.5-0; //right
+// // // //                           }else{
+// // // //                               test=test-(-0.5);//left
+// // // //                               // test0=0.5-test0;//right
+// // // //                           }
+// // // //                           // modphasexyl.x[] = test;
+// // // //                           // modphasexyr.x[] = 1-test;
+// // // //                           // complete1.x[] = 4;     
+// // // //                         }else if(n_temp.y<0){
+// // // //                           if(test>=0.5){
+// // // //                               test=0; //left
+// // // //                           }else if(test<=0){
+// // // //                               test=0.5; //left
+// // // //                           }else{
+// // // //                               test=0.5-test;//left
+// // // //                               // test0= 0.5-test0//right
+// // // //                           }
+// // // //                           // modphasexyl.x[] = 1-test;
+// // // //                           // modphasexyr.x[] = test;
+// // // //                           // complete1.x[] = 4;     
+// // // //                         }else{ //==0
+// // // //                           if(ff4[]<=0){
+// // // //                               // left 0->1
+// // // //                               test=-1;//() gas;
+// // // //                           }else if(ff4[]>=1){
+// // // //                               test=-2;// liquid
+// // // //                           }    
+// // // //                         }
+                    
+// // // //                 }
+// // // //                 if(test0==(-1) && test==(-1)){
+// // // //                     modphasexyl.y[]=1;
+// // // //                     modphasexyr.y[]=1;
+// // // //                 }else if(test0==(-2) && test==(-2)){
+// // // //                     modphasexyl.y[]=1;
+// // // //                     modphasexyr.y[]=1;
+// // // //                 }else if((test0==(-2) && test==(-1))||(test0==(-1) && test==(-2))){
+// // // //                     modphasexyl.y[]=0.5;
+// // // //                     modphasexyr.y[]=0.5;
+// // // //                 }else {
+// // // //                     if(test0==-1 || test0==-2){
+// // // //                         test0=0.5;
+// // // //                     }
+// // // //                     if(test==-1 || test==-2){
+// // // //                         test=0.5;
+// // // //                     }
+// // // //                     modphasexyl.y[]=test0+test;
+// // // //                     if(modphasexyl.y[]<=0 || modphasexyl.y[]>=1){
+// // // //                         modphasexyl.y[]=1;
+// // // //                         modphasexyr.y[]=1;
+// // // //                     }else{
+// // // //                         modphasexyr.y[]=1.0-modphasexyl.y[];
+// // // //                     }
+// // // //                 }
+// // // //                 complete1.y[]=9;
+// // // //           }
+          
+// // // //   } 
+  
+// // // //   //foreach_face (y)       
+// // // //         //  foreach_dimension(){
+// // // //         //     if(is_boundary(neighbor(1))){
+// // // //         //         modphase1.x[]=
+// // // //         //     }
+// // // //         //  }
+
+
+// // // //    //set boundary for mod
+// // // //     foreach_face() {
+         
+// // // //     }
+// // // //      	  foreach_face(){
+// // // //                      if(fabs(modphase0.x[])<lim_cut){
+// // // //                           modphase0.x[]=lim_cut;
+// // // //                           modphase1.x[]=1.0-modphase0.x[];
+// // // //                      }else if(fabs(modphase1.x[])<lim_cut){
+// // // //                           modphase1.x[]=lim_cut;
+// // // //                           modphase0.x[]=1.0-modphase1.x[];
+// // // //                      }
+// // // //                      if(modphase0.x[]>1){
+// // // //                           modphase0.x[] = 1.0;
+// // // //                      }
+// // // //                      if(modphase1.x[]>1){
+// // // //                           modphase1.x[] = 1.0;
+// // // //                      }
+// // // //          }
+
+// // // //     foreach_dimension(){
+// // // //       modphase0.x.restriction = face_rejection2_x ;
+// // // //       //   modphase0.x.prolongation = mod_prol_x;
+// // // //          modphase1.x.restriction = face_rejection2_x ;
+// // // //           modphasexyl.x.restriction = face_rejection2_x ;
+// // // //           modphasexyr.x.restriction = face_rejection2_x ;
+// // // //         // modphase0.x.prolongation = mod_prol_x;
+// // // //     }
+// // // //        restriction({modphase0.x, modphase0.y, modphase1.x,modphase1.y});
+// // // //        restriction({modphasexyl.x, modphasexyl.y, modphasexyr.x,modphasexyr.y});
+// // // //      boundary({modphase1,modphase0});
+// // // //      boundary({modphasexyl,modphasexyr});
+// // // //     //  char name101[80];
+// // // // 	  //  sprintf(name101,"mass_record5-pid%d.dat",pid());
+// // // // 	  //   FILE * fp101 = fopen(name101,"w");
+// // // //     //   foreach_face(){
+// // // //     //      // if(fabs(modphase1.x[])<=1.0){
+// // // //     //             fprintf(fp101,"%g %g %g %g %g\n",x,y,z,modphase1.x[],modphase0.x[]);
+// // // //     //       //}
+// // // //     //   }
+// // // //     // fclose(fp101);
+// // // //     //   MPI_Barrier(MPI_COMM_WORLD);
+// // // //     //   if(pid()==0){
+// // // //     //       char command1[150];
+// // // //     //       sprintf(command1, "LC_ALL=C cat mass_record5-pid*.dat > outfacets/mass_record5-%g",t);
+// // // //     //       system(command1);
+
+// // // //     //       char command7[150];
+// // // //     //       sprintf(command7, "LC_ALL=C rm -rf mass_record5-pid*.dat");
+// // // //     //       system(command7);
+// // // //     //   }
+
+// // // //     foreach(){
+// // // //       complete1_show.x[] = complete1.x[];
+// // // //       complete1_show.y[] = complete1.y[];
+// // // //     }
+  
+// // // //   }
 ///for masstr[] source_pc[] 
 //scalar masstr[];
 extern scalar masstr;
@@ -1210,7 +2009,9 @@ static void embed_fraction_refine_css_test (Point point, scalar css_test)
     boundary using VOF linear reconstruction and a normal estimated
     from the surface fractions. */
 
-    coord n = facet_normal (point, css_test, fss_test);
+    // coord n = facet_normal (point, css_test, fss_test);
+    coord n = mycs (point, ff);
+
     double alpha = plane_alpha (cc, n);
       
     foreach_child() {
@@ -1256,8 +2057,10 @@ static void embed_face_fraction_fss_test_refine_x (Point point, scalar s)
     boundary using VOF linear reconstruction and a normal estimated
     from the surface fractions. */
 
-    coord n = facet_normal (point, css_test, fss_test);
-    double alpha = plane_alpha (css_test[], n);
+     // coord n = facet_normal (point, css_test, fss_test);
+    coord n = mycs (point, ff);
+    // double alpha = plane_alpha (css_test[], n);
+    double alpha = plane_alpha (ff[], n);
       
     /**
     We need to reconstruct the face fractions *fss_test* for the fine cells.
@@ -1384,7 +2187,8 @@ static void embed_fraction_refine_css_test2 (Point point, scalar css_test2)
     boundary using VOF linear reconstruction and a normal estimated
     from the surface fractions. */
 
-    coord n = facet_normal (point, css_test2, fss_test2);
+    // coord n = facet_normal (point, css_test2, fss_test2);
+    coord n = mycs (point, ff_oppo);
     double alpha = plane_alpha (cc, n);
       
     foreach_child() {
@@ -1429,8 +2233,10 @@ static void embed_face_fraction_fss_test2_refine_x (Point point, scalar s)
     boundary using VOF linear reconstruction and a normal estimated
     from the surface fractions. */
 
-    coord n = facet_normal (point, css_test2, fss_test2);
-    double alpha = plane_alpha (css_test2[], n);
+        // coord n = facet_normal (point, css_test2, fss_test2);
+    coord n = mycs (point, ff_oppo);
+    // double alpha = plane_alpha (css_test2[], n);
+    double alpha = plane_alpha (ff_oppo[], n);
       
     /**
     We need to reconstruct the face fractions *fss_test2* for the fine cells.

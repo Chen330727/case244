@@ -12,7 +12,8 @@ $$
 with $\sigma$ the (constant) surface tension coefficient and $\kappa$
 the interface mean curvature. */
 
-#include "iforce.h"
+// #include "iforce.h"
+#include "./my-iforce.h"
 #include "curvature.h"
 
 /**

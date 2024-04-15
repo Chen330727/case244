@@ -4,3 +4,4 @@ dump-i*
 *.dat
 *.png
 .qcc*
+could_delete/*

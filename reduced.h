@@ -22,7 +22,8 @@ coord G = {0.,0.,0.}, Z = {0.,0.,0.};
 We need the interfacial force module as well as some
 functions to compute the position of the interface. */
 
-#include "iforce.h"
+// #include "iforce.h"
+#include "./my-iforce.h"
 #include "curvature.h"
 
 /**

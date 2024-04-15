@@ -3,7 +3,7 @@ extern scalar phase0Tgrad,phase1Tgrad;
 extern scalar resl,resg,ress;
 // extern scalar cm_css_test,cm_css_test2,cm_css_test3;
 // extern face vector fm_fss_test,fm_fss_test2,fm_fss_test3;
-
+extern scalar ff,ff_oppo;
 
 extern scalar T_modl,T_modg,aiml,aimg;
 extern int maxl;
@@ -25,8 +25,10 @@ void get_flux_lg(scalar flux_lg_l1, scalar flux_lg_g1, scalar phase0Tgrad, scala
                             // mua += alpha.x[] + alpha.x[1];
                             fa  += fss_test.x[] + fss_test.x[1];
                             }
-                            coord nl = mycs (point, css_test);//interface_normal(point, ff);//interface_normal7(point,ff,hhh); //
-                            double alphal = plane_alpha (css_test[], nl);
+                            // coord nl = mycs (point, css_test);//interface_normal(point, ff);//interface_normal7(point,ff,hhh); //
+                            // double alphal = plane_alpha (css_test[], nl);
+                            coord nl = mycs (point, ff);//interface_normal(point, ff);//interface_normal7(point,ff,hhh); //
+                            double alphal = plane_alpha (ff[], nl);
                             coord ppp;
                             arealg = plane_area_center (nl, alphal, &ppp);
                             if (metric_embed_factor)  
@@ -79,9 +81,11 @@ void get_flux_lg(scalar flux_lg_l1, scalar flux_lg_g1, scalar phase0Tgrad, scala
                                 fa  += fss_test2.x[] + fss_test2.x[1];
                             }
                             //mua= k0;//Tkg;
-                            coord ng = interface_normal(point, css_test2);//ff_oppo);// interface_normal7(point,ff_oppo,hhh_ff_oppo); // interface_normal7(point,css_test,hhh); //interface_normal7
+                            // coord ng = interface_normal(point, css_test2);//ff_oppo);// interface_normal7(point,ff_oppo,hhh_ff_oppo); // interface_normal7(point,css_test,hhh); //interface_normal7
+                            coord ng = mycs(point, ff_oppo);//ff_oppo);// interface_normal7(point,ff_oppo,hhh_ff_oppo); // 
                             coord ppp2;
-                            double alphag = plane_alpha (css_test2[], ng);
+                            // double alphag = plane_alpha (css_test2[], ng);
+                            double alphag = plane_alpha (ff_oppo[], ng);
                             arealg2 = plane_area_center (ng, alphag, &ppp2);
                             if (metric_embed_factor)  
                                     arealg2 *= metric_embed_factor (point, ppp2);
@@ -159,6 +163,9 @@ double T_tolerance = 1e-6;
 if(maxl==11){
     T_tolerance = 1e-4;
 }
+foreach(){
+    ff_oppo[] = 1.0 - ff[];
+}
 get_solidsurfaceT(); //get aiml aimg T_modl T_modg flux_l flux_g
 Tgrad_leon(ff,phase0Tgrad,phase1Tgrad,aiml,aimg);
 get_flux_lg(flux_lg_l, flux_lg_g, phase0Tgrad, phase1Tgrad);
@@ -227,6 +234,46 @@ Tl_old.refine = Tl_old.prolongation = refine_embed_linear_css_test;
 Tg_old.refine = Tg_old.prolongation = refine_embed_linear_css_test2;
 boundary({Ts_old,Tl_old,Tg_old});
 restriction({Ts_old,Tl_old,Tg_old});
+double above_value_merge=above_value;
+scalar caculatecell_s[],caculatecell_l[],caculatecell_g[];
+foreach(){
+    caculatecell_s[]=0;
+    caculatecell_l[]=0;
+    caculatecell_g[]=0;
+    if(css_test3[]>0){
+        if(level==level_interface){
+            if(css_test3[]>=above_value_merge){
+                caculatecell_s[]=1;
+            }
+        }else{
+            if(css_test3[]>0){
+                caculatecell_s[]=1;
+            }
+        }
+    }
+    if(css_test3[]<1.0){
+        if(level==level_interface){
+            if(css_test[]>=above_value_merge){
+                caculatecell_l[]=1;
+            }
+        }else{
+            if(css_test3[]<1 && css_test[]>0){
+                caculatecell_l[]=1;
+            }
+        }
+    }
+    if(css_test3[]<1.0){
+        if(level==level_interface){
+            if(css_test2[]>=above_value_merge){
+                caculatecell_g[]=1;
+            }
+        }else{
+            if(css_test3[]<1.0 && css_test2[]>0){
+                caculatecell_g[]=1;
+            }
+        }
+    }
+}
 for(itt=1;itt<=maxitt;itt++){
         
     foreach(){
@@ -236,20 +283,24 @@ for(itt=1;itt<=maxitt;itt++){
         // double fs_s_b_value = fss_test3[0,-1]*max(y-Delta/2.0,1e-20);
         // double fs_s_t_value = fss_test3[0,1]*max(y+Delta/2.0,1e-20);
 
-        if(css_test3[]>=0.5){
+        if(css_test3[]>0){
             ///////////////////////////////solid
+            bool flag=false;
             double total= percent_s*poisson_s[];
             double A3=Trhos*Tcps/dt*cm_css_test3[];
             double A4=Trhos*Tcps/dt*cm_css_test3[];
             if(level==level_interface){
-                if(css_test3[]>0.0 && css_test3[]<1.0){ //flux accross solid surface
-                    double flux_i=0.0;
-                    // flux_i = flux_l[]/Delta*areasl[]/Delta + flux_g[]/Delta*areasg[]/Delta + percent_s*poisson_s[] + flux_s_6[];
-                    flux_i = flux_l[]/Delta*areasl[]/Delta + flux_g[]/Delta*areasg[]/Delta  + flux_s_6[];
-                    total += flux_i;
-                }
+                if(css_test3[]>=above_value_merge){
+                    flag = true;
+                    if(css_test3[]>0.0 && css_test3[]<1.0){ //flux accross solid surface
+                        double flux_i=0.0;
+                        // flux_i = flux_l[]/Delta*areasl[]/Delta + flux_g[]/Delta*areasg[]/Delta + percent_s*poisson_s[] + flux_s_6[];
+                        flux_i = flux_l[]/Delta*areasl[]/Delta + flux_g[]/Delta*areasg[]/Delta  + flux_s_6[];
+                        total += flux_i;
+                    }
                         //left
-                        if(css_test3[-1,0]>=0.5){
+                        // if(css_test3[-1,0]>=0.5){
+                        if(css_test3[-1,0]>=above_value_merge){
                             double Al;
                             Al = Tks*fm_fss_test3.x[]*1.0/(Delta*Delta);
                             total +=   Al*Ts[-1,0];
@@ -271,7 +322,8 @@ for(itt=1;itt<=maxitt;itt++){
                         } // css_test3[-1,0]
 
                         //right
-                        if(css_test3[1,0]>=0.5){
+                       // if(css_test3[1,0]>=0.5){
+                         if(css_test3[1,0]>=above_value_merge){
                             double Ar;
                             Ar = Tks*fm_fss_test3.x[1,0]*1.0/(Delta*Delta);
                             total +=   Ar*Ts[1,0];
@@ -293,7 +345,8 @@ for(itt=1;itt<=maxitt;itt++){
                         }// css_test3[1,0]
 
                          //bottom
-                        if(css_test3[0,-1]>=0.5){
+                        // if(css_test3[0,-1]>=0.5){
+                        if(css_test3[0,-1]>=above_value_merge){
                             double Al;
                             Al = Tks*fm_fss_test3.y[]*1.0/(Delta*Delta);
                             total +=   Al*Ts[0,-1];
@@ -315,7 +368,8 @@ for(itt=1;itt<=maxitt;itt++){
                         } // css_test3[0,-1]
 
                          //top
-                        if(css_test3[0,1]>=0.5){
+                        // if(css_test3[0,1]>=0.5){
+                        if(css_test3[0,1]>=above_value_merge){
                             double Ar;
                             Ar = Tks*fm_fss_test3.y[0,1]*1.0/(Delta*Delta);
                             total +=   Ar*Ts[0,1];
@@ -335,9 +389,11 @@ for(itt=1;itt<=maxitt;itt++){
                                 }
                             }
                         } // css_test3[-1,0]
-
+                }
             }else{ //level<level_interface
-                if(css_test3[]>=0.5){
+                // if(css_test3[]>=0.5){
+                if(css_test3[]>0){
+                    flag=true;
                     //4faces
                     foreach_dimension(){
                         if(css_test3[-1]>0.0){
@@ -356,7 +412,9 @@ for(itt=1;itt<=maxitt;itt++){
                     }
                 }//if
             }
-            Ts[] = (total+A4*Ts_old[])*beta1/A3 + (1.0-beta1)*Ts[];
+            if(flag){
+                Ts[] = (total+A4*Ts_old[])*beta1/A3 + (1.0-beta1)*Ts[];
+            }
         } 
 
 
@@ -364,11 +422,16 @@ for(itt=1;itt<=maxitt;itt++){
         //////////////
         ///////////////////////////////fluid
         //consider flux_l and flux across solid
-       if(css_test3[]<0.5 && css_test[]>=0.5){
+      //    if(css_test3[]<0.5 && css_test[]>=0.5){
+        // if(css_test[]>=above_value_merge){
+        if(css_test3[]<1.0){
+            bool flag=false;
             double total_l= percent_l*poisson_s[];
             double A3_l=Trhol*Tcpl/dt*cm_css_test[];
             double A4_l=Trhol*Tcpl/dt*cm_css_test[];       
-            if(level==level_interface){
+             if(level==level_interface){
+                if(css_test[]>=above_value_merge){
+                    flag=true;
                 //if there is solid interface in the cell
                 if(css_test3[]>0.0 && css_test3[]<1.0){
                     double flux_i=0.0;
@@ -386,7 +449,8 @@ for(itt=1;itt<=maxitt;itt++){
                 }
                     //left
                     if(css_test3[-1,0]<1.0){
-                        if(css_test3[-1,0]<0.5 && css_test[-1,0]>=0.5){
+                        // if(css_test3[-1,0]<0.5 && css_test[-1,0]>=0.5){
+                        if(css_test[-1,0]>=above_value_merge){
                                     double Al;
                                     Al = Tkl*fm_fss_test.x[]*1.0/(Delta*Delta);
                                     total_l +=   Al*Tl[-1,0];
@@ -397,14 +461,16 @@ for(itt=1;itt<=maxitt;itt++){
                                  int ii = merge_to_me_l_position.x[-1,0];
                                  int jj = merge_to_me_l_position.y[-1,0];
                                  if((ii==1) && (jj==0)){
-                                        if(css_test3[-1,0]<1.0 && css_test3[-1,0]>0.5){ //0.5< <1.0
+                                        // if(css_test3[-1,0]<1.0 && css_test3[-1,0]>0.5){ //0.5< <1.0
+                                        if(css_test3[-1,0]<1.0 && css_test3[-1,0]>0){ //0.5< <1.0
                                             //solid interface
                                             double flux_i=0.0;
                                             flux_i = (-flux_l[-1,0])/Delta*areasl[-1,0]/Delta  + percent_l*poisson_s[-1,0] + flux_l_6[-1,0];
                                             total_l += flux_i;
                                         }
                                         //merge_energy_from fluid
-                                        if(css_test[-1,0]>0.0 && css_test[-1,0]<0.5){
+                                        // if(css_test[-1,0]>0.0 && css_test[-1,0]<0.5){
+                                        if(css_test[-1,0]>0.0 && css_test[-1,0]<above_value_merge){
                                                 //lg interface
                                                 total_l += flux_lg_l[-1,0];
                                         }
@@ -417,7 +483,8 @@ for(itt=1;itt<=maxitt;itt++){
 
                    //right
                    if(css_test3[1,0]<1.0){
-                        if(css_test3[1,0]<0.5 && css_test[1,0]>=0.5){
+                        // if(css_test3[1,0]<0.5 && css_test[1,0]>=0.5){
+                        if(css_test[1,0]>=above_value_merge){
                                     double Ar;
                                     Ar = Tkl*fm_fss_test.x[1,0]*1.0/(Delta*Delta);
                                     total_l +=   Ar*Tl[1,0];
@@ -428,14 +495,16 @@ for(itt=1;itt<=maxitt;itt++){
                                  int ii = merge_to_me_l_position.x[1,0];
                                  int jj = merge_to_me_l_position.y[1,0];
                                  if((ii==-1) && (jj==0)){
-                                        if(css_test3[1,0]<1.0 && css_test3[1,0]>0.5){ //0.5< <1.0
+                                        // if(css_test3[1,0]<1.0 && css_test3[1,0]>0.5){ //0.5< <1.0
+                                        if(css_test3[1,0]<1.0 && css_test3[1,0]>0){ //0.5< <1.0
                                             //solid interface
                                             double flux_i=0.0;
                                             flux_i = (-flux_l[1,0])/Delta*areasl[1,0]/Delta  + percent_l*poisson_s[1,0]+ flux_l_6[1,0];
                                             total_l += flux_i;
                                         }
                                         //merge_energy_from fluid
-                                        if(css_test[1,0]>0.0 && css_test[1,0]<0.5){
+                                       // if(css_test[1,0]>0.0 && css_test[1,0]<0.5){
+                                        if(css_test[1,0]>0.0 && css_test[1,0]<above_value_merge){
                                                 //merge judge
                                                 total_l += flux_lg_l[1,0];
                                         }
@@ -448,7 +517,8 @@ for(itt=1;itt<=maxitt;itt++){
 
                      //bottom
                    if(css_test3[0,-1]<1.0){
-                        if(css_test3[0,-1]<0.5 && css_test[0,-1]>=0.5){
+                        // if(css_test3[0,-1]<0.5 && css_test[0,-1]>=0.5){
+                            if(css_test[0,-1]>=above_value_merge){
                                     double Al;
                                     Al = Tkl*fm_fss_test.y[]*1.0/(Delta*Delta);
                                     total_l +=   Al*Tl[0,-1];
@@ -459,14 +529,16 @@ for(itt=1;itt<=maxitt;itt++){
                                  int ii = merge_to_me_l_position.x[0,-1];
                                  int jj = merge_to_me_l_position.y[0,-1];
                                  if((ii==0) && (jj==1)){
-                                        if(css_test3[0,-1]<1.0 && css_test3[0,-1]>0.5){ //0.5< <1.0
+                                        // if(css_test3[0,-1]<1.0 && css_test3[0,-1]>0.5){ //0.5< <1.0
+                                        if(css_test3[0,-1]<1.0 && css_test3[0,-1]>0.0){ //0.5< <1.0
                                             //solid interface
                                             double flux_i=0.0;
                                             flux_i = (-flux_l[0,-1])/Delta*areasl[0,-1]/Delta  + percent_l*poisson_s[0,-1]+ flux_l_6[0,-1];
                                             total_l += flux_i;
                                         }
                                         //merge_energy_from fluid
-                                        if(css_test[0,-1]>0.0 && css_test[0,-1]<0.5){
+                                        // if(css_test[0,-1]>0.0 && css_test[0,-1]<0.5){
+                                        if(css_test[0,-1]>0.0 && css_test[0,-1]<above_value_merge){
                                                 //merge judge
                                                 total_l += flux_lg_l[0,-1];
                                         }
@@ -479,7 +551,8 @@ for(itt=1;itt<=maxitt;itt++){
 
                    //top
                    if(css_test3[0,1]<1.0){
-                        if(css_test3[0,1]<0.5 && css_test[0,1]>=0.5){
+                        // if(css_test3[0,1]<0.5 && css_test[0,1]>=0.5){
+                       if(css_test[0,1]>=above_value_merge){ 
                                     double Ar;
                                     Ar = Tkl*fm_fss_test.y[0,1]*1.0/(Delta*Delta);
                                     total_l +=   Ar*Tl[0,1];
@@ -490,14 +563,16 @@ for(itt=1;itt<=maxitt;itt++){
                                  int ii = merge_to_me_l_position.x[0,1];
                                  int jj = merge_to_me_l_position.y[0,1];
                                  if((ii==0) && (jj==-1)){
-                                        if(css_test3[0,1]<1.0 && css_test3[0,1]>0.5){ //0.5< <1.0
+                                        // if(css_test3[0,1]<1.0 && css_test3[0,1]>0.5){ //0.5< <1.0
+                                        if(css_test3[0,1]<1.0 && css_test3[0,1]>0.0){ //0.5< <1.0
                                             //solid interface
                                             double flux_i=0.0;
                                             flux_i = (-flux_l[0,1])/Delta*areasl[0,1]/Delta  + percent_l*poisson_s[0,1]+ flux_l_6[0,1];
                                             total_l += flux_i;
                                         }
                                         //merge_energy_from fluid
-                                        if(css_test[0,1]>0.0 && css_test[0,1]<0.5){
+                                        // if(css_test[0,1]>0.0 && css_test[0,1]<0.5){
+                                        if(css_test[0,1]>0.0 && css_test[0,1]<above_value_merge){
                                                 //merge judge
                                                 total_l += flux_lg_l[0,1];
                                         }
@@ -507,20 +582,23 @@ for(itt=1;itt<=maxitt;itt++){
                             }
                         }//merge
                     }
-                
+                }
             }else{ 
                 //level<level_interface
-                if(css_test3[]<0.5 && css_test[]>=0.5){
-                    //4faces
+               // if(css_test3[]<0.5 && css_test[]>=0.5){
+                if(css_test3[]<1 && css_test[]>0){
+                    flag = true;
                     foreach_dimension(){
-                        if(css_test3[-1]<0.5 && css_test[-1]>0.0){
+                        // if(css_test3[-1]<0.5 && css_test[-1]>0.0){
+                        if(css_test[-1]>0.0){
                            double Al;
                             Al = Tkl*fm_fss_test.x[]*1.0/(Delta*Delta);
                             total_l +=   Al*Tl[-1];
                             A3_l +=    Al; 
                         }
 
-                        if(css_test3[1]<0.5 && css_test[1]>0.0){
+                        // if(css_test3[1]<0.5 && css_test[1]>0.0){
+                        if(css_test[1]>0.0){
                             double Ar;
                             Ar = Tkl*fm_fss_test.x[1]*1.0/(Delta*Delta);
                             total_l +=   Ar*Tl[1];
@@ -529,25 +607,32 @@ for(itt=1;itt<=maxitt;itt++){
                     }
                 }//if
             }
-            Tl[] = (total_l+A4_l*Tl_old[])*beta1/A3_l + (1.0-beta1)*Tl[]; 
+           if(flag){
+                Tl[] = (total_l+A4_l*Tl_old[])*beta1/A3_l + (1.0-beta1)*Tl[]; 
+            }
     }
 
 
      //////////////
         ///////////////////////////////gas
         //consider flux_l and flux across solid
-       if(css_test3[]<0.5 && css_test2[]>=0.5){
+       //    if(css_test3[]<0.5 && css_test2[]>=0.5){
+         if(css_test3[]<1.0){
+            bool flag=false;
             double total_g=percent_g*poisson_s[];
             double A3_g=Trhog*Tcpg/dt*cm_css_test2[];
             double A4_g=Trhog*Tcpg/dt*cm_css_test2[];       
             if(level==level_interface){
+                if(css_test2[]>=above_value_merge){
+                    //if there is solid interface in the cell
+                    flag=true;
                 //if there is solid interface in the cell
-                if(css_test3[]>0.0 && css_test3[]<1.0){
-                    double flux_i=0.0;
-                    // flux_i = (-flux_g[])/Delta*areasg[]/Delta  + percent_g*poisson_s[] + flux_g_6[];
-                    flux_i = (-flux_g[])/Delta*areasg[]/Delta   + flux_g_6[];
-                    total_g += flux_i;
-                }
+                    if(css_test3[]>0.0 && css_test3[]<1.0){
+                        double flux_i=0.0;
+                        // flux_i = (-flux_g[])/Delta*areasg[]/Delta  + percent_g*poisson_s[] + flux_g_6[];
+                        flux_i = (-flux_g[])/Delta*areasg[]/Delta   + flux_g_6[];
+                        total_g += flux_i;
+                    }
                 //if there is fluid interface in the cell
                 if(css_test3[]<1.0){
                     if(css_test2[]>0 && css_test2[]<1.0){
@@ -557,7 +642,8 @@ for(itt=1;itt<=maxitt;itt++){
                 }
                     //left
                     if(css_test3[-1,0]<1.0){
-                        if(css_test3[-1,0]<0.5 && css_test2[-1,0]>=0.5){
+                        // if(css_test3[-1,0]<0.5 && css_test2[-1,0]>=0.5){
+                        if(css_test2[-1,0]>=above_value_merge){
                                     double Al;
                                     Al = Tkg*fm_fss_test2.x[]*1.0/(Delta*Delta);
                                     total_g +=   Al*Tg[-1,0];
@@ -568,14 +654,16 @@ for(itt=1;itt<=maxitt;itt++){
                                  int ii = merge_to_me_g_position.x[-1,0];
                                  int jj = merge_to_me_g_position.y[-1,0];
                                  if((ii==1) && (jj==0)){
-                                        if(css_test3[-1,0]<1.0 && css_test3[-1,0]>0.5){ //0.5< <1.0
+                                         // if(css_test3[-1,0]<1.0 && css_test3[-1,0]>0.5){ //0.5< <1.0
+                                        if(css_test3[-1,0]<1.0 && css_test3[-1,0]>0.0){ //0.5< <1.0
                                             //solid interface
                                             double flux_i=0.0;
                                             flux_i = (-flux_g[-1,0])/Delta*areasg[-1,0]/Delta + percent_g*poisson_s[-1,0]+ flux_g_6[-1,0];
                                             total_g += flux_i;
                                         }
                                         //merge_energy_from fluid
-                                        if(css_test2[-1,0]>0.0 && css_test2[-1,0]<0.5){
+                                        // if(css_test2[-1,0]>0.0 && css_test2[-1,0]<0.5){
+                                        if(css_test2[-1,0]>0.0 && css_test2[-1,0]<above_value_merge){
                                                 //lg interface
                                                 total_g += flux_lg_g[-1,0];
                                         }
@@ -588,7 +676,8 @@ for(itt=1;itt<=maxitt;itt++){
 
                    //right
                    if(css_test3[1,0]<1.0){
-                        if(css_test3[1,0]<0.5 && css_test2[1,0]>=0.5){
+                        // if(css_test3[1,0]<0.5 && css_test2[1,0]>=0.5){
+                        if(css_test2[1,0]>=above_value_merge){
                                     double Ar;
                                     Ar = Tkg*fm_fss_test2.x[1,0]*1.0/(Delta*Delta);
                                     total_g +=   Ar*Tg[1,0];
@@ -599,14 +688,16 @@ for(itt=1;itt<=maxitt;itt++){
                                  int ii = merge_to_me_g_position.x[1,0];
                                  int jj = merge_to_me_g_position.y[1,0];
                                  if((ii==-1) && (jj==0)){
-                                        if(css_test3[1,0]<1.0 && css_test3[1,0]>0.5){ //0.5< <1.0
+                                        // if(css_test3[1,0]<1.0 && css_test3[1,0]>0.5){ //0.5< <1.0
+                                        if(css_test3[1,0]<1.0 && css_test3[1,0]>0){ //0.5< <1.0
                                             //solid interface
                                             double flux_i=0.0;
                                             flux_i = (-flux_g[1,0])/Delta*areasg[1,0]/Delta + percent_g*poisson_s[1,0]+ flux_g_6[1,0];
                                             total_g += flux_i;
                                         }
                                         //merge_energy_from fluid
-                                        if(css_test2[1,0]>0.0 && css_test2[1,0]<0.5){
+                                        // if(css_test2[1,0]>0.0 && css_test2[1,0]<0.5){
+                                        if(css_test2[1,0]>0.0 && css_test2[1,0]<above_value_merge){
                                                 //merge judge
                                                 total_g += flux_lg_g[1,0];
                                         }
@@ -619,7 +710,8 @@ for(itt=1;itt<=maxitt;itt++){
 
                      //bottom
                    if(css_test3[0,-1]<1.0){
-                        if(css_test3[0,-1]<0.5 && css_test2[0,-1]>=0.5){
+                        // if(css_test3[0,-1]<0.5 && css_test2[0,-1]>=0.5){
+                        if(css_test2[0,-1]>=above_value_merge){
                                     double Al;
                                     Al = Tkg*fm_fss_test2.y[]*1.0/(Delta*Delta);
                                     total_g +=   Al*Tg[0,-1];
@@ -630,14 +722,16 @@ for(itt=1;itt<=maxitt;itt++){
                                  int ii = merge_to_me_g_position.x[0,-1];
                                  int jj = merge_to_me_g_position.y[0,-1];
                                  if((ii==0) && (jj==1)){
-                                        if(css_test3[0,-1]<1.0 && css_test3[0,-1]>0.5){ //0.5< <1.0
+                                        // if(css_test3[0,-1]<1.0 && css_test3[0,-1]>0.5){ //0.5< <1.0
+                                        if(css_test3[0,-1]<1.0 && css_test3[0,-1]>0.0){ //0.5< <1.0
                                             //solid interface
                                             double flux_i=0.0;
                                             flux_i = (-flux_g[0,-1])/Delta*areasg[0,-1]/Delta  + percent_g*poisson_s[0,-1]+ flux_g_6[0,-1];
                                             total_g += flux_i;
                                         }
                                         //merge_energy_from fluid
-                                        if(css_test2[0,-1]>0.0 && css_test2[0,-1]<0.5){
+                                        // if(css_test2[0,-1]>0.0 && css_test2[0,-1]<0.5){
+                                        if(css_test2[0,-1]>0.0 && css_test2[0,-1]<above_value_merge){
                                                 //merge judge
                                                 total_g += flux_lg_g[0,-1];
                                         }
@@ -650,7 +744,8 @@ for(itt=1;itt<=maxitt;itt++){
 
                    //top
                    if(css_test3[0,1]<1.0){
-                        if(css_test3[0,1]<0.5 && css_test2[0,1]>=0.5){
+                        // if(css_test3[0,1]<0.5 && css_test2[0,1]>=0.5){
+                        if(css_test2[0,1]>=above_value_merge){
                                     double Ar;
                                     Ar = Tkg*fm_fss_test2.y[0,1]*1.0/(Delta*Delta);
                                     total_g +=   Ar*Tg[0,1];
@@ -661,14 +756,16 @@ for(itt=1;itt<=maxitt;itt++){
                                  int ii = merge_to_me_g_position.x[0,1];
                                  int jj = merge_to_me_g_position.y[0,1];
                                  if((ii==0) && (jj==-1)){
-                                        if(css_test3[0,1]<1.0 && css_test3[0,1]>0.5){ //0.5< <1.0
+                                       // if(css_test3[0,1]<1.0 && css_test3[0,1]>0.5){ //0.5< <1.0
+                                        if(css_test3[0,1]<1.0 && css_test3[0,1]>0.0){ //0.5< <1.0
                                             //solid interface
                                             double flux_i=0.0;
                                             flux_i = (-flux_g[0,1])/Delta*areasg[0,1]/Delta + percent_g*poisson_s[0,1]+ flux_g_6[0,1];
                                             total_g += flux_i;
                                         }
                                         //merge_energy_from fluid
-                                        if(css_test2[0,1]>0.0 && css_test2[0,1]<0.5){
+                                        // if(css_test2[0,1]>0.0 && css_test2[0,1]<0.5){
+                                        if(css_test2[0,1]>0.0 && css_test2[0,1]<above_value_merge){
                                                 //merge judge
                                                 total_g += flux_lg_g[0,1];
                                         }
@@ -678,20 +775,23 @@ for(itt=1;itt<=maxitt;itt++){
                             }
                         }//merge
                     }
-                
+                }
             }else{ 
                 //level<level_interface
-                if(css_test3[]<0.5 && css_test2[]>=0.5){
+                if(css_test3[]<1.0 && css_test2[]>0){
+                    flag=true;
                     //4faces
                     foreach_dimension(){
-                        if(css_test3[-1]<0.5 && css_test2[-1]>0.0){
+                        // if(css_test3[-1]<0.5 && css_test2[-1]>0.0){
+                        if(css_test2[-1]>0.0){
                            double Al;
                             Al = Tkg*fm_fss_test2.x[]*1.0/(Delta*Delta);
                             total_g +=   Al*Tg[-1];
                             A3_g +=    Al; 
                         }
 
-                        if(css_test3[1]<0.5 && css_test2[1]>0.0){
+                        // if(css_test3[1]<0.5 && css_test2[1]>0.0){
+                        if(css_test2[1]>0.0){
                             double Ar;
                             Ar = Tkg*fm_fss_test2.x[1]*1.0/(Delta*Delta);
                             total_g +=   Ar*Tg[1];
@@ -700,7 +800,9 @@ for(itt=1;itt<=maxitt;itt++){
                     }
                 }//if
             }
-            Tg[] = (total_g+A4_g*Tg_old[])*beta1/A3_g + (1.0-beta1)*Tg[]; 
+           if(flag){
+                Tg[] = (total_g+A4_g*Tg_old[])*beta1/A3_g + (1.0-beta1)*Tg[]; 
+            }
       }
       
 } //foreach
@@ -716,20 +818,27 @@ if(itt%1==0){
         double maxres_s=0.0;
         double maxres_l=0.0;
         double maxres_g=0.0;
-        if(css_test3[]>=0.5){
+       // if(css_test3[]>=0.5){
+        bool flag_s=false;
+        bool flag_l=false;
+        bool flag_g=false;
+        if(css_test3[]>0){
             ///////////////////////////////solid
             double total= percent_s*poisson_s[];
             double A3=Trhos*Tcps/dt*cm_css_test3[];
             double A4=Trhos*Tcps/dt*cm_css_test3[];
             if(level==level_interface){
-                if(css_test3[]>0.0 && css_test3[]<1.0){ //flux accross solid surface
-                    double flux_i=0.0;
-                    // flux_i = flux_l[]/Delta*areasl[]/Delta + flux_g[]/Delta*areasg[]/Delta  + percent_s*poisson_s[]+ flux_s_6[];
-                    flux_i = flux_l[]/Delta*areasl[]/Delta + flux_g[]/Delta*areasg[]/Delta  + flux_s_6[];
-                    total += flux_i;
-                }
+                flag_s=true;
+                if(css_test3[]>=above_value_merge){
+                    if(css_test3[]>0.0 && css_test3[]<1.0){ //flux accross solid surface
+                        double flux_i=0.0;
+                        // flux_i = flux_l[]/Delta*areasl[]/Delta + flux_g[]/Delta*areasg[]/Delta  + percent_s*poisson_s[]+ flux_s_6[];
+                        flux_i = flux_l[]/Delta*areasl[]/Delta + flux_g[]/Delta*areasg[]/Delta  + flux_s_6[];
+                        total += flux_i;
+                    }
                         //left
-                        if(css_test3[-1,0]>=0.5){
+                       // if(css_test3[-1,0]>=0.5){
+                        if(css_test3[-1,0]>=above_value_merge){
                             double Al;
                             Al = Tks*fm_fss_test3.x[]*1.0/(Delta*Delta);
                             total +=   Al*Ts[-1,0];
@@ -752,7 +861,8 @@ if(itt%1==0){
                         } // css_test3[-1,0]
 
                         //right
-                        if(css_test3[1,0]>=0.5){
+                        // if(css_test3[1,0]>=0.5){
+                        if(css_test3[1,0]>=above_value_merge){
                             double Ar;
                             Ar = Tks*fm_fss_test3.x[1,0]*1.0/(Delta*Delta);
                             total +=   Ar*Ts[1,0];
@@ -774,7 +884,8 @@ if(itt%1==0){
                         }// css_test3[1,0]
 
                          //bottom
-                        if(css_test3[0,-1]>=0.5){
+                        // if(css_test3[0,-1]>=0.5){
+                        if(css_test3[0,-1]>=above_value_merge){
                             double Al;
                             Al = Tks*fm_fss_test3.y[]*1.0/(Delta*Delta);
                             total +=   Al*Ts[0,-1];
@@ -796,7 +907,8 @@ if(itt%1==0){
                         } // css_test3[0,-1]
 
                          //top
-                        if(css_test3[0,1]>=0.5){
+                        // if(css_test3[0,1]>=0.5){
+                        if(css_test3[0,1]>=above_value_merge){
                             double Ar;
                             Ar = Tks*fm_fss_test3.y[0,1]*1.0/(Delta*Delta);
                             total +=   Ar*Ts[0,1];
@@ -816,9 +928,12 @@ if(itt%1==0){
                                 }
                             }
                         } // css_test3[-1,0]
+                }
 
             }else{ //level<level_interface
-                if(css_test3[]>=0.5){
+                 // if(css_test3[]>=0.5){
+                if(css_test3[]>0){
+                    flag_s = true;
                     //4faces
                     foreach_dimension(){
                         if(css_test3[-1]>0.0){
@@ -837,7 +952,9 @@ if(itt%1==0){
                     }
                 }//if
             }
-            maxres_s = fabs(total+A4*Ts_old[]-A3*Ts[]);
+             if(flag_s){
+                maxres_s = fabs(total+A4*Ts_old[]-A3*Ts[]);
+            }
         } 
 
 
@@ -845,18 +962,21 @@ if(itt%1==0){
         //////////////
         ///////////////////////////////fluid
         //consider flux_l and flux across solid
-       if(css_test3[]<0.5 && css_test[]>=0.5){
+      //    if(css_test3[]<0.5 && css_test[]>=0.5){
+        if(css_test3[]<1.0){
             double total_l= percent_l*poisson_s[];
             double A3_l=Trhol*Tcpl/dt*cm_css_test[];
             double A4_l=Trhol*Tcpl/dt*cm_css_test[];       
             if(level==level_interface){
+                if(css_test[]>=above_value_merge){
+                    flag_l = true;
                 //if there is solid interface in the cell
-                if(css_test3[]>0.0 && css_test3[]<1.0){
-                    double flux_i=0.0;
-                    // flux_i = (-flux_l[])/Delta*areasl[]/Delta + percent_l*poisson_s[]+ flux_l_6[];
-                    flux_i = (-flux_l[])/Delta*areasl[]/Delta + flux_l_6[];
-                    total_l += flux_i;
-                }
+                    if(css_test3[]>0.0 && css_test3[]<1.0){
+                        double flux_i=0.0;
+                        // flux_i = (-flux_l[])/Delta*areasl[]/Delta + percent_l*poisson_s[]+ flux_l_6[];
+                        flux_i = (-flux_l[])/Delta*areasl[]/Delta + flux_l_6[];
+                        total_l += flux_i;
+                    }
                 //if there is fluid interface in the cell
                 if(css_test3[]<1.0){
                     if(css_test[]>0 && css_test[]<1.0){
@@ -866,7 +986,8 @@ if(itt%1==0){
                 }
                     //left
                     if(css_test3[-1,0]<1.0){
-                        if(css_test3[-1,0]<0.5 && css_test[-1,0]>=0.5){
+                        // if(css_test3[-1,0]<0.5 && css_test[-1,0]>=0.5){
+                        if(css_test[-1,0]>=above_value_merge){
                                     double Al;
                                     Al = Tkl*fm_fss_test.x[]*1.0/(Delta*Delta);
                                     total_l +=   Al*Tl[-1,0];
@@ -877,14 +998,16 @@ if(itt%1==0){
                                  int ii = merge_to_me_l_position.x[-1,0];
                                  int jj = merge_to_me_l_position.y[-1,0];
                                  if((ii==1) && (jj==0)){
-                                        if(css_test3[-1,0]<1.0 && css_test3[-1,0]>0.5){ //0.5< <1.0
+                                        // if(css_test3[-1,0]<1.0 && css_test3[-1,0]>0.5){ //0.5< <1.0
+                                        if(css_test3[-1,0]<1.0 && css_test3[-1,0]>0.0){ //0.5< <1.0
                                             //solid interface
                                             double flux_i=0.0;
                                             flux_i = (-flux_l[-1,0])/Delta*areasl[-1,0]/Delta  + percent_l*poisson_s[-1,0]+ flux_l_6[-1,0];
                                             total_l += flux_i;
                                         }
                                         //merge_energy_from fluid
-                                        if(css_test[-1,0]>0.0 && css_test[-1,0]<0.5){
+                                        // if(css_test[-1,0]>0.0 && css_test[-1,0]<0.5){
+                                        if(css_test[-1,0]>0.0 && css_test[-1,0]<above_value_merge){
                                                 //lg interface
                                                 total_l += flux_lg_l[-1,0];
                                         }
@@ -897,7 +1020,8 @@ if(itt%1==0){
 
                    //right
                    if(css_test3[1,0]<1.0){
-                        if(css_test3[1,0]<0.5 && css_test[1,0]>=0.5){
+                        // if(css_test3[1,0]<0.5 && css_test[1,0]>=0.5){
+                        if(css_test[1,0]>=above_value_merge){
                                     double Ar;
                                     Ar = Tkl*fm_fss_test.x[1,0]*1.0/(Delta*Delta);
                                     total_l +=   Ar*Tl[1,0];
@@ -908,14 +1032,16 @@ if(itt%1==0){
                                  int ii = merge_to_me_l_position.x[1,0];
                                  int jj = merge_to_me_l_position.y[1,0];
                                  if((ii==-1) && (jj==0)){
-                                        if(css_test3[1,0]<1.0 && css_test3[1,0]>0.5){ //0.5< <1.0
+                                        // if(css_test3[1,0]<1.0 && css_test3[1,0]>0.5){ //0.5< <1.0
+                                        if(css_test3[1,0]<1.0 && css_test3[1,0]>0.0){ //0.5< <1.0
                                             //solid interface
                                             double flux_i=0.0;
                                             flux_i = (-flux_l[1,0])/Delta*areasl[1,0]/Delta + percent_l*poisson_s[1,0]+ flux_l_6[1,0];
                                             total_l += flux_i;
                                         }
                                         //merge_energy_from fluid
-                                        if(css_test[1,0]>0.0 && css_test[1,0]<0.5){
+                                        // if(css_test[1,0]>0.0 && css_test[1,0]<0.5){
+                                        if(css_test[1,0]>0.0 && css_test[1,0]<above_value_merge){
                                                 //merge judge
                                                 total_l += flux_lg_l[1,0];
                                         }
@@ -929,7 +1055,8 @@ if(itt%1==0){
 
                      //bottom
                    if(css_test3[0,-1]<1.0){
-                        if(css_test3[0,-1]<0.5 && css_test[0,-1]>=0.5){
+                        // if(css_test3[0,-1]<0.5 && css_test[0,-1]>=0.5){
+                        if(css_test[0,-1]>=above_value_merge){
                                     double Al;
                                     Al = Tkl*fm_fss_test.y[]*1.0/(Delta*Delta);
                                     total_l +=   Al*Tl[0,-1];
@@ -940,14 +1067,16 @@ if(itt%1==0){
                                  int ii = merge_to_me_l_position.x[0,-1];
                                  int jj = merge_to_me_l_position.y[0,-1];
                                  if((ii==0) && (jj==1)){
-                                        if(css_test3[0,-1]<1.0 && css_test3[0,-1]>0.5){ //0.5< <1.0
+                                        // if(css_test3[0,-1]<1.0 && css_test3[0,-1]>0.5){ //0.5< <1.0
+                                        if(css_test3[0,-1]<1.0 && css_test3[0,-1]>0.0){ //0.5< <1.0
                                             //solid interface
                                             double flux_i=0.0;
                                             flux_i = (-flux_l[0,-1])/Delta*areasl[0,-1]/Delta + percent_l*poisson_s[0,-1]+ flux_l_6[0,-1];
                                             total_l += flux_i;
                                         }
                                         //merge_energy_from fluid
-                                        if(css_test[0,-1]>0.0 && css_test[0,-1]<0.5){
+                                        // if(css_test[0,-1]>0.0 && css_test[0,-1]<0.5){
+                                        if(css_test[0,-1]>0.0 && css_test[0,-1]<above_value_merge){
                                                 //merge judge
                                                 total_l += flux_lg_l[0,-1];
                                         }
@@ -960,7 +1089,8 @@ if(itt%1==0){
 
                    //top
                    if(css_test3[0,1]<1.0){
-                        if(css_test3[0,1]<0.5 && css_test[0,1]>=0.5){
+                        // if(css_test3[0,1]<0.5 && css_test[0,1]>=0.5){
+                        if(css_test[0,1]>=above_value_merge){
                                     double Ar;
                                     Ar = Tkl*fm_fss_test.y[0,1]*1.0/(Delta*Delta);
                                     total_l +=   Ar*Tl[0,1];
@@ -971,14 +1101,16 @@ if(itt%1==0){
                                  int ii = merge_to_me_l_position.x[0,1];
                                  int jj = merge_to_me_l_position.y[0,1];
                                  if((ii==0) && (jj==-1)){
-                                        if(css_test3[0,1]<1.0 && css_test3[0,1]>0.5){ //0.5< <1.0
+                                         // if(css_test3[0,1]<1.0 && css_test3[0,1]>0.5){ //0.5< <1.0
+                                        if(css_test3[0,1]<1.0 && css_test3[0,1]>0.0){ //0.5< <1.0
                                             //solid interface
                                             double flux_i=0.0;
                                             flux_i = (-flux_l[0,1])/Delta*areasl[0,1]/Delta  + percent_l*poisson_s[0,1]+ flux_l_6[0,1];
                                             total_l += flux_i;
                                         }
                                         //merge_energy_from fluid
-                                        if(css_test[0,1]>0.0 && css_test[0,1]<0.5){
+                                        // if(css_test[0,1]>0.0 && css_test[0,1]<0.5){
+                                        if(css_test[0,1]>0.0 && css_test[0,1]<above_value_merge){
                                                 //merge judge
                                                 total_l += flux_lg_l[0,1];
                                         }
@@ -988,20 +1120,25 @@ if(itt%1==0){
                             }
                         }//merge
                     }
+                }
                 
             }else{ 
                 //level<level_interface
-                if(css_test3[]<0.5 && css_test[]>=0.5){
+               // if(css_test3[]<0.5 && css_test[]>=0.5){
+                 if(css_test3[]<1 && css_test[]>0){
+                    flag_l=true;
                     //4faces
                     foreach_dimension(){
-                        if(css_test3[-1]<0.5 && css_test[-1]>0.0){
+                        // if(css_test3[-1]<0.5 && css_test[-1]>0.0){
+                        if(css_test[-1]>0.0){
                            double Al;
                             Al = Tkl*fm_fss_test.x[]*1.0/(Delta*Delta);
                             total_l +=   Al*Tl[-1];
                             A3_l +=    Al; 
                         }
 
-                        if(css_test3[1]<0.5 && css_test[1]>0.0){
+                        // if(css_test3[1]<0.5 && css_test[1]>0.0){
+                        if(css_test[1]>0.0){
                             double Ar;
                             Ar = Tkl*fm_fss_test.x[1]*1.0/(Delta*Delta);
                             total_l +=   Ar*Tl[1];
@@ -1011,25 +1148,30 @@ if(itt%1==0){
                 }//if
             }
             // Tl[] = (total_l+A4_l*Tl[])*beta1/A3_l + (1.0-beta1)*Tl[]; 
-             maxres_l = fabs(total_l+A4_l*Tl_old[]-A3_l*Tl[]);
+            if(flag_l){
+                maxres_l = fabs(total_l+A4_l*Tl_old[]-A3_l*Tl[]);
+            }
     }
 
 
      //////////////
         ///////////////////////////////gas
         //consider flux_l and flux across solid
-       if(css_test3[]<0.5 && css_test2[]>=0.5){
+      //    if(css_test3[]<0.5 && css_test2[]>=0.5){
+         if(css_test3[]<1.0){
             double total_g= percent_g*poisson_s[];
             double A3_g=Trhog*Tcpg/dt*cm_css_test2[];
             double A4_g=Trhog*Tcpg/dt*cm_css_test2[];       
             if(level==level_interface){
+                if(css_test2[]>=above_value_merge){
+                    flag_g = true;
                 //if there is solid interface in the cell
-                if(css_test3[]>0.0 && css_test3[]<1.0){
-                    double flux_i=0.0;
-                    // flux_i = (-flux_g[])/Delta*areasg[]/Delta  + percent_g*poisson_s[]+ flux_g_6[];
-                    flux_i = (-flux_g[])/Delta*areasg[]/Delta + flux_g_6[];
-                    total_g += flux_i;
-                }
+                    if(css_test3[]>0.0 && css_test3[]<1.0){
+                        double flux_i=0.0;
+                        // flux_i = (-flux_g[])/Delta*areasg[]/Delta  + percent_g*poisson_s[]+ flux_g_6[];
+                        flux_i = (-flux_g[])/Delta*areasg[]/Delta + flux_g_6[];
+                        total_g += flux_i;
+                    }
                 //if there is fluid interface in the cell
                 if(css_test3[]<1.0){
                     if(css_test2[]>0 && css_test2[]<1.0){
@@ -1039,7 +1181,8 @@ if(itt%1==0){
                 }
                     //left
                     if(css_test3[-1,0]<1.0){
-                        if(css_test3[-1,0]<0.5 && css_test2[-1,0]>=0.5){
+                        // if(css_test3[-1,0]<0.5 && css_test2[-1,0]>=0.5){
+                        if(css_test2[-1,0]>=above_value_merge){
                                     double Al;
                                     Al = Tkg*fm_fss_test2.x[]*1.0/(Delta*Delta);
                                     total_g +=   Al*Tg[-1,0];
@@ -1050,14 +1193,16 @@ if(itt%1==0){
                                  int ii = merge_to_me_g_position.x[-1,0];
                                  int jj = merge_to_me_g_position.y[-1,0];
                                  if((ii==1) && (jj==0)){
-                                        if(css_test3[-1,0]<1.0 && css_test3[-1,0]>0.5){ //0.5< <1.0
+                                       // if(css_test3[-1,0]<1.0 && css_test3[-1,0]>0.5){ //0.5< <1.0
+                                        if(css_test3[-1,0]<1.0 && css_test3[-1,0]>0.0){ //0.5< <1.0
                                             //solid interface
                                             double flux_i=0.0;
                                             flux_i = (-flux_g[-1,0])/Delta*areasg[-1,0]/Delta + percent_g*poisson_s[-1,0]+ flux_g_6[-1,0];
                                             total_g += flux_i;
                                         }
                                         //merge_energy_from fluid
-                                        if(css_test2[-1,0]>0.0 && css_test2[-1,0]<0.5){
+                                        // if(css_test2[-1,0]>0.0 && css_test2[-1,0]<0.5){
+                                        if(css_test2[-1,0]>0.0 && css_test2[-1,0]<above_value_merge){
                                                 //lg interface
                                                 total_g += flux_lg_g[-1,0];
                                         }
@@ -1070,7 +1215,8 @@ if(itt%1==0){
 
                    //right
                    if(css_test3[1,0]<1.0){
-                        if(css_test3[1,0]<0.5 && css_test2[1,0]>=0.5){
+                        // if(css_test3[1,0]<0.5 && css_test2[1,0]>=0.5){
+                        if(css_test2[1,0]>=above_value_merge){
                                     double Ar;
                                     Ar = Tkg*fm_fss_test2.x[1,0]*1.0/(Delta*Delta);
                                     total_g +=   Ar*Tg[1,0];
@@ -1081,14 +1227,16 @@ if(itt%1==0){
                                  int ii = merge_to_me_g_position.x[1,0];
                                  int jj = merge_to_me_g_position.y[1,0];
                                  if((ii==-1) && (jj==0)){
-                                        if(css_test3[1,0]<1.0 && css_test3[1,0]>0.5){ //0.5< <1.0
+                                        // if(css_test3[1,0]<1.0 && css_test3[1,0]>0.5){ //0.5< <1.0
+                                        if(css_test3[1,0]<1.0 && css_test3[1,0]>0.0){ //0.5< <1.0
                                             //solid interface
                                             double flux_i=0.0;
                                             flux_i = (-flux_g[1,0])/Delta*areasg[1,0]/Delta + percent_g*poisson_s[1,0]+ flux_g_6[1,0];
                                             total_g += flux_i;
                                         }
                                         //merge_energy_from fluid
-                                        if(css_test2[1,0]>0.0 && css_test2[1,0]<0.5){
+                                        // if(css_test2[1,0]>0.0 && css_test2[1,0]<0.5){
+                                        if(css_test2[1,0]>0.0 && css_test2[1,0]<above_value_merge){
                                                 //merge judge
                                                 total_g += flux_lg_g[1,0];
                                         }
@@ -1101,7 +1249,8 @@ if(itt%1==0){
 
                      //bottom
                    if(css_test3[0,-1]<1.0){
-                        if(css_test3[0,-1]<0.5 && css_test2[0,-1]>=0.5){
+                        // if(css_test3[0,-1]<0.5 && css_test2[0,-1]>=0.5){
+                        if(css_test2[0,-1]>=above_value_merge){
                                     double Al;
                                     Al = Tkg*fm_fss_test2.y[]*1.0/(Delta*Delta);
                                     total_g +=   Al*Tg[0,-1];
@@ -1112,14 +1261,16 @@ if(itt%1==0){
                                  int ii = merge_to_me_g_position.x[0,-1];
                                  int jj = merge_to_me_g_position.y[0,-1];
                                  if((ii==0) && (jj==1)){
-                                        if(css_test3[0,-1]<1.0 && css_test3[0,-1]>0.5){ //0.5< <1.0
+                                       // if(css_test3[0,-1]<1.0 && css_test3[0,-1]>0.5){ //0.5< <1.0
+                                        if(css_test3[0,-1]<1.0 && css_test3[0,-1]>0.0){ //0.5< <1.0
                                             //solid interface
                                             double flux_i=0.0;
                                             flux_i = (-flux_g[0,-1])/Delta*areasg[0,-1]/Delta + percent_g*poisson_s[0,-1]+ flux_g_6[0,-1];
                                             total_g += flux_i;
                                         }
                                         //merge_energy_from fluid
-                                        if(css_test2[0,-1]>0.0 && css_test2[0,-1]<0.5){
+                                       // if(css_test2[0,-1]>0.0 && css_test2[0,-1]<0.5){
+                                        if(css_test2[0,-1]>0.0 && css_test2[0,-1]<above_value_merge){
                                                 //merge judge
                                                 total_g += flux_lg_g[0,-1];
                                         }
@@ -1132,7 +1283,8 @@ if(itt%1==0){
 
                    //top
                    if(css_test3[0,1]<1.0){
-                        if(css_test3[0,1]<0.5 && css_test2[0,1]>=0.5){
+                        // if(css_test3[0,1]<0.5 && css_test2[0,1]>=0.5){
+                        if(css_test2[0,1]>=above_value_merge){
                                     double Ar;
                                     Ar = Tkg*fm_fss_test2.y[0,1]*1.0/(Delta*Delta);
                                     total_g +=   Ar*Tg[0,1];
@@ -1143,14 +1295,16 @@ if(itt%1==0){
                                  int ii = merge_to_me_g_position.x[0,1];
                                  int jj = merge_to_me_g_position.y[0,1];
                                  if((ii==0) && (jj==-1)){
-                                        if(css_test3[0,1]<1.0 && css_test3[0,1]>0.5){ //0.5< <1.0
+                                       // if(css_test3[0,1]<1.0 && css_test3[0,1]>0.5){ //0.5< <1.0
+                                        if(css_test3[0,1]<1.0 && css_test3[0,1]>0){ //0.5< <1.0
                                             //solid interface
                                             double flux_i=0.0;
                                             flux_i = (-flux_g[0,1])/Delta*areasg[0,1]/Delta + percent_g*poisson_s[0,1]+ flux_g_6[0,1];
                                             total_g += flux_i;
                                         }
                                         //merge_energy_from fluid
-                                        if(css_test2[0,1]>0.0 && css_test2[0,1]<0.5){
+                                        // if(css_test2[0,1]>0.0 && css_test2[0,1]<0.5){
+                                        if(css_test2[0,1]>0.0 && css_test2[0,1]<above_value_merge){
                                                 //merge judge
                                                 total_g += flux_lg_g[0,1];
                                         }
@@ -1160,20 +1314,24 @@ if(itt%1==0){
                             }
                         }//merge
                     }
-                
+                }
             }else{ 
                 //level<level_interface
-                if(css_test3[]<0.5 && css_test2[]>=0.5){
+                // if(css_test3[]<0.5 && css_test2[]>=0.5){
+                if(css_test3[]<1.0 && css_test2[]>0){
+                    flag_g=true;
                     //4faces
                     foreach_dimension(){
-                        if(css_test3[-1]<0.5 && css_test2[-1]>0.0){
+                        // if(css_test3[-1]<0.5 && css_test2[-1]>0.0){
+                        if(css_test2[-1]>0.0){
                            double Al;
                             Al = Tkg*fm_fss_test2.x[]*1.0/(Delta*Delta);
                             total_g +=   Al*Tg[-1];
                             A3_g +=    Al; 
                         }
 
-                        if(css_test3[1]<0.5 && css_test2[1]>0.0){
+                       // if(css_test3[1]<0.5 && css_test2[1]>0.0){
+                        if(css_test2[1]>0.0){
                             double Ar;
                             Ar = Tkg*fm_fss_test2.x[1]*1.0/(Delta*Delta);
                             total_g +=   Ar*Tg[1];
@@ -1183,7 +1341,9 @@ if(itt%1==0){
                 }//if
             }
             // Tg[] = (total_g+A4_g*Tg[])*beta1/A3_g + (1.0-beta1)*Tg[];
-             maxres_g = fabs(total_g+A4_g*Tg_old[]-A3_g*Tg[]);
+             if(flag_g){
+                maxres_g = fabs(total_g+A4_g*Tg_old[]-A3_g*Tg[]);
+            }
         }
         resl[] = maxres_l;
         resg[] = maxres_g;

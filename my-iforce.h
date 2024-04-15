@@ -16,6 +16,13 @@ with $f$ the volume fraction field describing the interface.
 The interfacial force potential $\phi$ is associated to each VOF
 tracer. This is done easily by adding the following [field
 attributes](/Basilisk C#field-attributes). */
+extern scalar true_interface,topo_mask_s,ff;
+extern bool sigma_in_project;
+extern bool flag_rho;
+extern scalar arealg;
+extern vector flux_show;
+
+#define is_phase2(v) (v>=0.5)
 
 attribute {
   scalar phi;
@@ -84,7 +91,7 @@ event acceleration (i++)
   */
 
   face vector ia = a;
-  foreach_face()
+  foreach_face(){
     for (scalar f in list)
       if (f[] != f[-1] && fm.x[] > 0.) {
 
@@ -104,8 +111,132 @@ event acceleration (i++)
 	  phi[-1] < nodata ? phi[-1] :
 	  0.;
 
+double sf0,sf1;
+  if(flag_rho){
+                if(topo_mask_s[]==0 && (ff[]<1.0 && ff[]>0.0) && (true_interface[]!=1)){
+                    sf1 = 1.0;
+                }else{
+                    sf1 = sf[];
+                }
+                if(topo_mask_s[-1]==0 && (ff[-1]<1.0 && ff[-1]>0.0) && (true_interface[-1]!=1)){
+                    sf0 = 1.0;
+                }else{
+                    sf0 = sf[-1];
+                }
+  }else{
+        sf1 = sf[];
+        sf0 = sf[-1];
+  }
+ 
 //	ia.x[] += alpha.x[]/fm.x[]*phif*(f[] - f[-1])/Delta;
-	ia.x[] += alpha.x[]/(fm.x[] + SEPS)*phif*(f[] - f[-1])/Delta;
+	// ia.x[] += alpha.x[]/(fm.x[] + 
+double area_total = arealg[-1] + arealg[];
+double left_w=arealg[-1]/area_total;
+double right_w=arealg[]/area_total;
+coord nn_f_l,nn_f_r;
+nn_f_l.x=flux_show.x[-1];
+nn_f_l.y=flux_show.y[-1];
+nn_f_r.x=flux_show.x[];
+nn_f_r.y=flux_show.y[];
+normalize(&nn_f_l);
+normalize(&nn_f_r);
+coord nn_f;
+nn_f.x = (nn_f_l.x*left_w+nn_f_r.x*right_w);
+nn_f.y = (nn_f_l.y*left_w+nn_f_r.y*right_w);
+normalize(&nn_f);
+
+        if(sigma_in_project){
+            if(topo_mask_s[]!=0){
+                if(is_phase(sf1)){
+                    sf1=1;
+                }else{
+                    sf1=0;
+                }
+            }else{ //topo_mask_s[]==1
+                if(ff[]>0 && ff[]<1.0){
+                    sf1=1;
+                }else{ //ff[]<=0 or ff[]>=1
+                    if(is_phase(sf1)){
+                        sf1=1;
+                    }else{
+                        sf1=0;
+                    }
+                }
+            }
+            if(topo_mask_s[-1]!=0){
+                if(is_phase(sf0)){
+                    sf0=1;
+                }else{
+                    sf0=0;
+                }
+            }else{ //topo_mask_s[-1]==1
+                if(ff[-1]>0 && ff[-1]<1.0){
+                    sf0=1;
+                }else{ //ff[]<=0
+                    if(is_phase(sf0)){
+                        sf0=1;
+                    }else{
+                        sf0=0;
+                    }
+                }
+            }
+            //=sigma*curvature*(H_i+1 - H_i)/Delta  pressure jump, phif=sigma*curvature
+            
+            // jump_p_f.x[] += phif*(sf1 - sf0)*fabs(nn_f.x)/Delta;
+            // jump_p_f.x[] += phif*(sf1 - sf0)*fabs(nn_f.x);
+            // jump_p_f.x[] += phif*(sf1 - sf0);
+        }else{
+            if(1==0){
+              if(is_phase(sf1)){
+                  sf1=1;
+              }else{
+                  sf1=0;
+              }
+              if(is_phase(sf0)){
+                  sf0=1;
+              }else{
+                  sf0=0;
+              }
+            }else{
+            //      if(topo_mask_s[]!=0){
+            //           if(is_phase(sf1)){
+            //               sf1=1;
+            //           }else{
+            //               sf1=0;
+            //           }
+            //       }else{ //topo_mask_s[]==1
+            //           if(ff[]>0 && ff[]<1.0){
+            //               sf1=1;
+            //           }else{ //ff[]<=0 or ff[]>=1
+            //               if(is_phase(sf1)){
+            //                   sf1=1;
+            //               }else{
+            //                   sf1=0;
+            //               }
+            //           }
+            //       }
+            //       if(topo_mask_s[-1]!=0){
+            //           if(is_phase(sf0)){
+            //               sf0=1;
+            //           }else{
+            //               sf0=0;
+            //           }
+            //       }else{ //topo_mask_s[-1]==1
+            //           if(ff[-1]>0 && ff[-1]<1.0){
+            //               sf0=1;
+            //           }else{ //ff[]<=0
+            //               if(is_phase(sf0)){
+            //                   sf0=1;
+            //               }else{
+            //                   sf0=0;
+            //               }
+            //           }
+            //       }
+            } 
+            ia.x[] += alpha.x[]/(fm.x[] + SEPS)*phif*(sf1 - sf0)/Delta;
+        }
+
+      }
       }
 
   /**

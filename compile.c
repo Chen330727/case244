@@ -56,7 +56,7 @@ double L0_pysical;
 int case_number = 3; //casenumber==2 : tanguy
 int sink_number=0;
 // int maxl= 11, minl = 4;
-int maxl= MESHN , minl = 4;
+int maxl= 11 , minl = 4;
 bool restartsymbol = false;//true;
 
 int globali,outstep=1;
@@ -151,7 +151,7 @@ char Tini_file[80];
  scalar smf[],ssmf[],sssmf[],ssssmf[];
 //  scalar css_test3_n[];
  double thickness;
- double theta0=  CONTACTANGLE ;
+ double theta0=  15 ;
 
  bool restart_Tsat=false;
  int restart_Tsat_i=0;
@@ -547,7 +547,7 @@ end_time = start_time;
           centery=0.0;
           //centerz=bubble_radius*cos(50.0*M_PI/180.0);//L0/5.0; //0.2 ;//L0/2.0+0.07;
           //thickness = 0.001;//centerz;//0.5;//0.257;
-          theta0= CONTACTANGLE ;//60;//90.0; //65.65;
+          theta0= 15 ;//60;//90.0; //65.65;
           centerx=bubble_radius*cos(theta0*M_PI/180.0);;
         //step heat flux'  -- tempalte01-template2.c
         // heat_flux = 0; //mesu3-6

@@ -697,7 +697,8 @@ bool gradient_conjugates_x (Point point, scalar s, scalar f, bool inverse_flag,
         //   d[0] = max(1e-1, fabs(p.x/n.x));
         //   d[0] = max(1e-1,sqrt(sq(p.x)+sq(p.y)));
         // d[0] = fabs(p.x*n.x + p.y*n.y);
-        d[0] = max(1e-1,fabs(p.x*n.x + p.y*n.y));
+        // d[0] = max(1e-1,fabs(p.x*n.x + p.y*n.y));
+        d[0] = max(above_value/2.0,css_test3[]/2.0);
           // *coef = - 1./(d[0]*Delta);
           // return bc/(d[0]*Delta);
           //  double *data_s = (double*) malloc(2 * sizeof(double));
@@ -786,32 +787,35 @@ bool gradient_conjugatef_x (Point point, scalar s, scalar f, bool inverse_flag,
                 break;
             }
           }else{
-            bool flag_f1 = (css_test3_n[i,j-1] && (((!inverse_flag) && f[i,j-1]>0.0) || (inverse_flag && f[i,j-1]<1))  );
-            bool flag_f2 = (css_test3_n[i,j] && (((!inverse_flag) && f[i,j]>0) || (inverse_flag && f[i,j]<1))  );
-            bool flag_f3 = (css_test3_n[i,j+1] && (((!inverse_flag) && f[i,j+1]>0) || (inverse_flag && f[i,j+1]<1))  );
+            // bool flag_f1 = (css_test3_n[i,j-1] && (((!inverse_flag) && f[i,j-1]>0.0) || (inverse_flag && f[i,j-1]<1))  );
+            // bool flag_f2 = (css_test3_n[i,j] && (((!inverse_flag) && f[i,j]>0) || (inverse_flag && f[i,j]<1))  );
+            // bool flag_f3 = (css_test3_n[i,j+1] && (((!inverse_flag) && f[i,j+1]>0) || (inverse_flag && f[i,j+1]<1))  );
+            bool flag_f1 = (css_test3_n[i,j-1] && (((!inverse_flag) && f[i,j-1]>=0.5) || (inverse_flag && f[i,j-1]<0.5))  );
+            bool flag_f2 = (css_test3_n[i,j] && (((!inverse_flag) && f[i,j]>=0.5) || (inverse_flag && f[i,j]<0.5))  );
+            bool flag_f3 = (css_test3_n[i,j+1] && (((!inverse_flag) && f[i,j+1]>=0.5) || (inverse_flag && f[i,j+1]<0.5))  );
             double value1;
             if(flag_f1){
-                  if((!inverse_flag && f[i,j-1]<0.5) && (!inverse_flag && f[i,j-1]>0.5) ){
-                      value1 = Tsat00;
-                  }else{
+                //   if((!inverse_flag && f[i,j-1]<0.5) && (!inverse_flag && f[i,j-1]>0.5) ){
+                //       value1 = Tsat00;
+                //   }else{
                       value1 = s[i,j-1];
-                  }
+                //   }
             }
             double value2;
             if(flag_f2){
-                  if((!inverse_flag && f[i,j]<0.5) && (!inverse_flag && f[i,j]>0.5) ){
-                      value2 = Tsat00;
-                  }else{
+                //   if((!inverse_flag && f[i,j]<0.5) && (!inverse_flag && f[i,j]>0.5) ){
+                //       value2 = Tsat00;
+                //   }else{
                       value2 = s[i,j];
-                  }
+                //   }
             }
             double value3;
             if(flag_f3){
-                  if((!inverse_flag && f[i,j+1]<0.5) && (!inverse_flag && f[i,j+1]>0.5) ){
-                      value3 = Tsat00;
-                  }else{
+                //   if((!inverse_flag && f[i,j+1]<0.5) && (!inverse_flag && f[i,j+1]>0.5) ){
+                //       value3 = Tsat00;
+                //   }else{
                       value3 = s[i,j+1];
-                  }
+                //   }
             }
             if (fss_test3_n.x[i + (i < 0),j] && fss_test3_n.y[i,j] && fss_test3_n.y[i,j+1] &&
           (flag_f1) && (flag_f2) && (flag_f3)){
@@ -847,8 +851,10 @@ bool gradient_conjugatef_x (Point point, scalar s, scalar f, bool inverse_flag,
       
     }
   if (v[0] == nodata) {
-     if(css_test3_n[]>0.5){
-        if(((!(inverse_flag)) && f[]>=0.5) || (inverse_flag && f[]<0.5)){
+    //  if(css_test3_n[]>0.5){
+        if(css_test3_n[]>0){
+        // if(((!(inverse_flag)) && f[]>=0.5) || (inverse_flag && f[]<0.5)){
+         if(1==1){    
             /**
             This is a degenerate case, we use the boundary value and the
             cell-center value to define the gradient. */
@@ -856,7 +862,13 @@ bool gradient_conjugatef_x (Point point, scalar s, scalar f, bool inverse_flag,
             // d[0] = max(1e-1, fabs(p.x/n.x));
             // d[0] = max(1e-1,sqrt(sq(p.x)+sq(p.y)));
             // d[0] = fabs(p.x*n.x + p.y*n.y);
-            d[0] = max(1e-2,fabs(p.x*n.x + p.y*n.y));
+            double aa=-1;
+            if((!(inverse_flag)) ){
+                aa = css_test[]/2.0; //distance from center of gas volume to solid surface center
+            }else{
+                aa = (css_test2[])/2.0; //distance from center of gas volume to solid surface center
+            }
+            d[0] = max(above_value/2.0,aa);
 
             // *coef = - 1./(d[0]*Delta);
             // return bc/(d[0]*Delta);
@@ -883,34 +895,34 @@ bool gradient_conjugatef_x (Point point, scalar s, scalar f, bool inverse_flag,
             // }
             return true;
             //  return data_f;
-        }else {
-            if(1==0){
-                    double d0=0.0;
-                    if(f[]<1.0 && f[]>0.0){
-                        coord n_f = mycs (point, f);
-                        double alpha = plane_alpha (f[], n_f);
-                        coord p_f;
-                        double area = plane_area_center (n_f, alpha, &p_f);
-                        d0 = fabs((p_f.x-p.x)*n.x + (p_f.y-p.y)*n.y);//sqrt(sq(p_f.x-p.x)+sq(p_f.y-p.y));
-                    }
-                    if(d0>1e-2){
-                        *T3=Tsat00;//data_f[0]=s[];
-                        *c=d0;//d[0];//data_f[1]=d[0];
-                        *number=1;
-                    }else{
-                        *T3=Tsat00;//data_f[0]=s[];
-                        *c=1e-2;//d[0];//data_f[1]=d[0];
-                        *number=1;
-                    }
-            }else{
-                 d[0] = max(1e-2,fabs(p.x*n.x + p.y*n.y));
-                *T3=T[];//data_f[0]=s[];
-                *c=fabs(d[0]);//d[0];//data_f[1]=d[0];
-                *number=1;
-            }
-         return true;
-            //  return false;
-        }
+        } //else {
+        //     if(1==0){
+        //             double d0=0.0;
+        //             if(f[]<1.0 && f[]>0.0){
+        //                 coord n_f = mycs (point, f);
+        //                 double alpha = plane_alpha (f[], n_f);
+        //                 coord p_f;
+        //                 double area = plane_area_center (n_f, alpha, &p_f);
+        //                 d0 = fabs((p_f.x-p.x)*n.x + (p_f.y-p.y)*n.y);//sqrt(sq(p_f.x-p.x)+sq(p_f.y-p.y));
+        //             }
+        //             if(d0>1e-2){
+        //                 *T3=Tsat00;//data_f[0]=s[];
+        //                 *c=d0;//d[0];//data_f[1]=d[0];
+        //                 *number=1;
+        //             }else{
+        //                 *T3=Tsat00;//data_f[0]=s[];
+        //                 *c=1e-2;//d[0];//data_f[1]=d[0];
+        //                 *number=1;
+        //             }
+        //     }else{
+        //          d[0] = max(1e-2,fabs(p.x*n.x + p.y*n.y));
+        //         *T3=T[];//data_f[0]=s[];
+        //         *c=fabs(d[0]);//d[0];//data_f[1]=d[0];
+        //         *number=1;
+        //     }
+        //  return true;
+        //     //  return false;
+        // }
      }else{
          return false;
      }
@@ -1111,7 +1123,7 @@ void one_one_points_Rcc (double T1,double T3,
         double aTf = (Rs+Rl)*Rcc_v+Rcc_v*Rcc_v;
         // printf("a=%g c=%g \n",a,c);
         // printf("Rs=%g Rl=%g  Rcc_v=%g \n",Rs,Rl,Rcc_v);
-        if(fabs(aTf)>1e-12){
+        if(fabs(aTf)>1e-20){
             solid_temp[0] = ((Rs+Rcc_v)*Rcc_v*T3+Rl*Rcc_v*T1)/aTf; //T2_l
             solid_temp[1] = ((Rl+Rcc_v)*Rcc_v*T1+Rs*Rcc_v*T3)/aTf; //T2_s
             solid_temp[2] = (solid_temp[0] - solid_temp[1])/Rcc_v;
@@ -1387,25 +1399,15 @@ if(!near_triple_flag){
     }
     #if dimension == 2
     bool flag1=false;
-    if(1==0){
-        foreach_dimension()
-            if (fabs(nn1.x) >= fabs(nn1.y) && (!flag1)){
-            flag1 = gradient_conjugates_x (point, s, css_test3, inverse_flag, nn1, p, 
-                &T1,&T2,&a,&b, &number_s,&sign_flag_s);
-            // flag1 = true;
-            }
-    }else{
-        if(fabs(nn1.x) >= fabs(nn1.y)){
-            flag1 = gradient_conjugates_x (point, s, css_test3, inverse_flag, nn1, p, 
-                &T1,&T2,&a,&b, &number_s,&sign_flag_s);
-            //  number_s_f.x[] = 1;
+    // foreach_dimension()
+        if (fabs(nn1.x) >= fabs(nn1.y)){
+        flag1 = gradient_conjugates_x (point, s, css_test3, inverse_flag, nn1, p, 
+            &T1,&T2,&a,&b, &number_s,&sign_flag_s);
+        // flag1 = true;
         }else{
             flag1 = gradient_conjugates_y (point, s, css_test3, inverse_flag, nn1, p, 
-                &T1,&T2,&a,&b, &number_s,&sign_flag_s);
-            // number_s_f.x[] = 2;
+            &T1,&T2,&a,&b, &number_s,&sign_flag_s);
         }
-    }
-
     #else // dimension == 3
     if (fabs(nn1.x) >= fabs(nn1.y)) {
         if (fabs(nn1.x) >= fabs(nn1.z))
@@ -1438,12 +1440,15 @@ if(!near_triple_flag){
     // number_f =0;
     #if dimension == 2
     bool flag2=false;
-    foreach_dimension()
-        if (fabs(nn2.x) >= fabs(nn2.y) && (!flag2)){
+    // foreach_dimension()
+        if (fabs(nn2.x) >= fabs(nn2.y)){
         // *data_f;// = gradient_conjugatef_x (point, ss,  ff, inverse_flag, nn2, p, &number_f);
         flag2 = gradient_conjugatef_x (point, ss, ff, inverse_flag, nn2, p, 
             &T3,&T4,&c,&d, &number_f,&sign_flag_f);
         // flag2 = true;
+        }else{
+        flag2 = gradient_conjugatef_y (point, ss, ff, inverse_flag, nn2, p, 
+            &T3,&T4,&c,&d, &number_f,&sign_flag_f);
         }
     #else // dimension == 3
     if (fabs(nn2.x) >= fabs(nn2.y)) {
@@ -1452,8 +1457,7 @@ if(!near_triple_flag){
         gradient_conjugatef_x (point, ss, ff, inverse_flag, nn2, p, 
             &T3,&T4,&c,&d, &number_f,&sign_flag_f);
 
-    }reach_neighbo
-    else if (fabs(nn2.y) >= fabs(nn2.z)){
+    }else if (fabs(nn2.y) >= fabs(nn2.z)){
         // *data_f;// = gradient_conjugatef_y (point, ss, ff, inverse_flag, nn2, p,  &number_f);
         gradient_conjugatef_y (point, ss, ff, inverse_flag, nn2, p, 
             &T3,&T4,&c,&d, &number_f,&sign_flag_f);
@@ -1468,7 +1472,7 @@ if(!near_triple_flag){
         number_s = 1;
         T1 = s[];
         // data_s[1] = max(1e-1,sqrt(sq(p.x)+sq(p.y)));
-        a = max(1e-1,fabs(p.x*nn1.x + p.y*nn1.y));
+        a = max(above_value/2.0,fabs(p.x*nn1.x + p.y*nn1.y));
         int ii,jj;
         if(is_liquid){
             ii = round(merge_to_me_l_position.x[]);
@@ -1479,17 +1483,17 @@ if(!near_triple_flag){
         }
         number_f = 1;
         T3 = ss[ii,jj];
-        c = max(1e-1,fabs((ii-p.x)*nn2.x + (jj-p.y)*nn2.y));
+        c = max(above_value/2.0,fabs((ii-p.x)*nn2.x + (jj-p.y)*nn2.y));
     }else{ //css_test3[] can not == 0.5, so in initial tuning 1e-20, if ==0.5
         number_s = 1;
         int ii = round(merge_to_me_s_position.x[]);
         int jj = round(merge_to_me_s_position.y[]);
         T1 = s[ii,jj];
-        a = max(1e-1,fabs((ii-p.x)*nn1.x + (jj-p.y)*nn1.y));
+        a = max(above_value/2.0,fabs((ii-p.x)*nn1.x + (jj-p.y)*nn1.y));
         number_f = 1;
         T3 = ss[];
         // data_f[1] = max(1e-1,sqrt(sq(p.x)+sq(p.y)));
-        c = max(1e-1,fabs(p.x*nn2.x + p.y*nn2.y));
+        c = max(above_value/2.0,fabs(p.x*nn2.x + p.y*nn2.y)); 
     }
 }
   // if(number_f==0){
@@ -1584,11 +1588,14 @@ if(!near_triple_flag){
     }
     #if dimension == 2
     bool flag1=false;
-    foreach_dimension()
-        if (fabs(nn1.x) >= fabs(nn1.y) && (!flag1)){
+   // foreach_dimension()
+        if (fabs(nn1.x) >= fabs(nn1.y)){
         flag1 = gradient_conjugates_x (point, s, css_test3, inverse_flag, nn1, p, 
             &T1,&T2,&a,&b, &number_s,&sign_flag_s);
         // flag1 = true;
+        }else{
+        flag1 = gradient_conjugates_y (point, s, css_test3, inverse_flag, nn1, p, 
+            &T1,&T2,&a,&b, &number_s,&sign_flag_s);
         }
     #else // dimension == 3
     if (fabs(nn1.x) >= fabs(nn1.y)) {
@@ -1622,12 +1629,15 @@ if(!near_triple_flag){
     // number_f =0;
     #if dimension == 2
     bool flag2=false;
-    foreach_dimension()
-        if (fabs(nn2.x) >= fabs(nn2.y) && (!flag2)){
+   // foreach_dimension()
+        if (fabs(nn2.x) >= fabs(nn2.y)){
         // *data_f;// = gradient_conjugatef_x (point, ss,  ff, inverse_flag, nn2, p, &number_f);
         flag2 = gradient_conjugatef_x (point, ss, ff, inverse_flag, nn2, p, 
             &T3,&T4,&c,&d, &number_f,&sign_flag_f);
         // flag2 = true;
+        }else{
+         flag2 = gradient_conjugatef_y (point, ss, ff, inverse_flag, nn2, p, 
+            &T3,&T4,&c,&d, &number_f,&sign_flag_f);    
         }
     #else // dimension == 3
     if (fabs(nn2.x) >= fabs(nn2.y)) {
@@ -1636,8 +1646,7 @@ if(!near_triple_flag){
         gradient_conjugatef_x (point, ss, ff, inverse_flag, nn2, p, 
             &T3,&T4,&c,&d, &number_f,&sign_flag_f);
 
-    }reach_neighbo
-    else if (fabs(nn2.y) >= fabs(nn2.z)){
+    }else if (fabs(nn2.y) >= fabs(nn2.z)){
         // *data_f;// = gradient_conjugatef_y (point, ss, ff, inverse_flag, nn2, p,  &number_f);
         gradient_conjugatef_y (point, ss, ff, inverse_flag, nn2, p, 
             &T3,&T4,&c,&d, &number_f,&sign_flag_f);
@@ -1652,7 +1661,7 @@ if(!near_triple_flag){
         number_s = 1;
         T1 = s[];
         // data_s[1] = max(1e-1,sqrt(sq(p.x)+sq(p.y)));
-        a = max(1e-1,fabs(p.x*nn1.x + p.y*nn1.y));
+        a = max(above_value/2.0,fabs(p.x*nn1.x + p.y*nn1.y));
         int ii,jj;
         if(is_liquid){
             ii = round(merge_to_me_l_position.x[]);
@@ -1663,17 +1672,17 @@ if(!near_triple_flag){
         }
         number_f = 1;
         T3 = ss[ii,jj];
-        c = max(1e-1,fabs((ii-p.x)*nn2.x + (jj-p.y)*nn2.y));
+        c = max(above_value/2.0,fabs((ii-p.x)*nn2.x + (jj-p.y)*nn2.y));
     }else{ //css_test3[] can not == 0.5, so in initial tuning 1e-20, if ==0.5
         number_s = 1;
         int ii = round(merge_to_me_s_position.x[]);
         int jj = round(merge_to_me_s_position.y[]);
         T1 = s[ii,jj];
-        a = max(1e-1,fabs((ii-p.x)*nn1.x + (jj-p.y)*nn1.y));
+        a = max(above_value/2.0,fabs((ii-p.x)*nn1.x + (jj-p.y)*nn1.y));
         number_f = 1;
         T3 = ss[];
         // data_f[1] = max(1e-1,sqrt(sq(p.x)+sq(p.y)));
-        c = max(1e-1,fabs(p.x*nn2.x + p.y*nn2.y));
+        c = max(above_value/2.0,fabs(p.x*nn2.x + p.y*nn2.y));
     }
 }
   // if(number_f==0){
@@ -1731,25 +1740,15 @@ double T1, T2, a, b;
 int sign_flag_s;
 #if dimension == 2
  bool flag1=false;
- if(1==0){
-  foreach_dimension()
-    if (fabs(nn1.x) >= fabs(nn1.y) && (!flag1)){
-      flag1 = gradient_conjugates_x (point, s, css_test3, inverse_flag, nn1, p, 
-        &T1,&T2,&a,&b, &number_s,&sign_flag_s);
-      // flag1 = true;
-    }
- }else{
+//   foreach_dimension()
     if (fabs(nn1.x) >= fabs(nn1.y)){
       flag1 = gradient_conjugates_x (point, s, css_test3, inverse_flag, nn1, p, 
         &T1,&T2,&a,&b, &number_s,&sign_flag_s);
       // flag1 = true;
-    //    number_s_f.x[] = 1;
     }else{
         flag1 = gradient_conjugates_y (point, s, css_test3, inverse_flag, nn1, p, 
         &T1,&T2,&a,&b, &number_s,&sign_flag_s);
-        // number_s_f.x[] = 2;
     }
- }
 #else // dimension == 3
   if (fabs(nn1.x) >= fabs(nn1.y)) {
     if (fabs(nn1.x) >= fabs(nn1.z))
@@ -2380,14 +2379,18 @@ foreach(){
 #define IS_CONDITION_MET(ii, jj) ((ii==0 && jj==-1) || (ii==1 && jj==0) || (ii==0 && jj==1) || (ii==-1 && jj==0))
 
 bool is_f_small_part(double f_value) {
-    if ( (f_value > 0.0 && f_value < 0.5)) {
+   // if ( (f_value > 0.0 && f_value < 0.5)) {
+    
+    double above_value_merge=above_value;
+     if ( (f_value > 0.0 && f_value < above_value_merge)) {
         return true;
     }
     return false;
 }
 
 bool is_f_big_part(double f_value) {
-    if ((f_value >= 0.5 && f_value<=1.0)) {
+    double above_value_merge=above_value;
+    if ((f_value >= above_value_merge && f_value<=1.0)) {
         return true;
     }
     return false;
