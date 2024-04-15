@@ -539,7 +539,7 @@ void Tgrad_leon(struct Tgradleon q){
   scalar ff5 = q.ff5;
   scalar phaseg = q.phaseg;
   scalar phasel = q.phasel;
-  double length_threshold = 0.01; 
+  double length_threshold = 0.05;//0.01; 
  bool is_constant_m=false;//;true;//false;//true;
     //ff5 should be original ff
  //       printf("pid=%d, T_leon begin\n",pid());
@@ -569,6 +569,9 @@ void Tgrad_leon(struct Tgradleon q){
             foreach_dimension()
                     nnn.x[] = m.x;
             }
+      }
+      foreach(){
+        ff_oppo[] = 1.0-ff5[];
       }
     for(int phase=0;phase<=1;phase++){
    //     printf("pid=%d, T_leon 36, phase=%d\n",pid(),phase);
