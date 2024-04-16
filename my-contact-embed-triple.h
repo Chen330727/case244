@@ -754,7 +754,7 @@ if(1==0){
     }
 }
 
-
+if(1==0){
 foreach(){
   //  region[]=0;
   f_height[] = ff[];
@@ -874,6 +874,8 @@ foreach(){
         }
       }
    }
+}
+
 }
  boundary ({ff});
 
