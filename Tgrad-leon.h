@@ -1120,6 +1120,39 @@ void Tgrad_leon(struct Tgradleon q){
             }
         }
   }
+  if(1==0){
+        scalar phaseg_temp[],phasel_temp[];
+        foreach(){
+            phaseg_temp[]=phaseg[];
+            phasel_temp[]=phasel[];
+        }
+        double epsilon1=1e-1;
+        foreach(){
+            if(level==level_interface && topo_mask[]==0){
+                double weight_l=0.0;
+                double total_l=0.0;
+                double weight_g=0.0;
+                double total_g=0.0;
+                coord current;
+                current.x = x, current.y=y;
+                foreach_neighbor(1){
+                    if(topo_mask[]==0 && level==level_interface){
+                        double weight_local=0;
+                        weight_local = 1./sqrt(((x-current.x)/Delta)**2+((y-current.y)/Delta)**2);
+                        weight_local = max(epsilon1,weight_local);
+                        weight_l += weight_local;
+                        total_l += (weight_local*phasel_temp[]);
+                        weight_g += weight_local;
+                        total_g += (weight_local*phaseg_temp[])
+                    }
+                }
+                if(weight_l>0){
+                    phaseg[] = total_g/weight_g;
+                    phasel[] = total_l/weight_l;
+                }
+            }
+        }
+  }
 } 
 
 //input css_test3_n solid; the direction of phase0and1 is the normal from (gas and water) to solid
