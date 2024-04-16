@@ -1120,7 +1120,7 @@ void Tgrad_leon(struct Tgradleon q){
             }
         }
   }
-  if(1==0){
+  if(1==1){
         scalar phaseg_temp[],phasel_temp[];
         foreach(){
             phaseg_temp[]=phaseg[];
@@ -1137,13 +1137,17 @@ void Tgrad_leon(struct Tgradleon q){
                 current.x = x, current.y=y;
                 foreach_neighbor(1){
                     if(topo_mask[]==0 && level==level_interface){
-                        double weight_local=0;
-                        weight_local = 1./sqrt(((x-current.x)/Delta)**2+((y-current.y)/Delta)**2);
-                        weight_local = max(epsilon1,weight_local);
-                        weight_l += weight_local;
-                        total_l += (weight_local*phasel_temp[]);
-                        weight_g += weight_local;
-                        total_g += (weight_local*phaseg_temp[])
+                            double weight_local=0;
+                            double distance = sqrt(((x-current.x)/Delta)*((x-current.x)/Delta)+((y-current.y)/Delta)*((y-current.y)/Delta));
+                            if(distance<epsilon1){
+                                distance = epsilon1;
+                            }
+                            weight_local = 1./distance;
+                            weight_local = max(epsilon1,weight_local);
+                            weight_l += weight_local;
+                            total_l += (weight_local*phasel_temp[]);
+                            weight_g += weight_local;
+                            total_g += (weight_local*phaseg_temp[]);
                     }
                 }
                 if(weight_l>0){

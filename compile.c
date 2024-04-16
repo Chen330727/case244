@@ -991,7 +991,7 @@ void solid_phi(double base, vertex scalar phi){
 event init (t = 0)
 {
   // CFL = 0.5;//0.01; // mesu3-14
-  CFL = 0.4;//0.2;//0.02; //mesu3-15
+  CFL = 0.4;//0.4;//0.2;//0.02; //mesu3-15
   if(poisson_check){
       if(pid()==0){
            char name93[80];
