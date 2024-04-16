@@ -3382,6 +3382,23 @@ boundary({ff});
   smooth_for_arm(df3,poisson_source2_f);
  // adapt_wavelet ({T,ff}, (double[]){0.01,0.001}, maxlevel = maxl, minlevel= minl);
   ff.refine = fraction_refine;
+
+foreach(){
+  if(Tl[]<Tsat00){
+      Tl[]=Tsat00;
+  }
+  if(Tg[]<Tsat00){
+      Tg[] =Tsat00;
+  }
+  if(Ts[]<Tsat00){
+      Ts[] = Tsat00;
+  }
+  if(T[]<Tsat00){
+      T[]=Tsat00;
+  }
+}
+
+
 if(!restartsymbol){
       if(case_number == 1){
         adapt_wavelet ({df1},(double[]){0.001}, maxlevel = maxl, minlevel = minl);

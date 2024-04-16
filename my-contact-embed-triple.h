@@ -456,23 +456,23 @@ if(!flag33 && 1==0){
 }
 
 if(1==1){
-    foreach(reduction(+:total_number_triple)){
-      if(intersect_true[]==1 || intersect_true[]==2){
-          bool flag=false;
-          double value = css_test[];
-          foreach_neighbor(2){
-            if(intersect_true[]==1 || intersect_true[]==2){
-              if(value<css_test[]){
-                flag=true;
-              }
-            }
-          }
-           if(flag){
-                intersect_true[] = 0;
-                total_number_triple -=1;
-           }
-      }
-    }
+    // foreach(reduction(+:total_number_triple)){
+    //   if(intersect_true[]==1 || intersect_true[]==2){
+    //       bool flag=false;
+    //       double value = css_test[];
+    //       foreach_neighbor(2){
+    //         if(intersect_true[]==1 || intersect_true[]==2){
+    //           if(value<css_test[]){
+    //             flag=true;
+    //           }
+    //         }
+    //       }
+    //        if(flag){
+    //             intersect_true[] = 0;
+    //             total_number_triple -=1;
+    //        }
+    //   }
+    // }
 }else{
     scalar mindist[];
     foreach(){
