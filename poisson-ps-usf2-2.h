@@ -172,7 +172,7 @@ void poisson_ps_usf1 (struct Linear_ps q) {
      int maxitt=2000,beta1=1.2;
      //double ps_tolerance = 1.0/max(Trhol,Trhog)/(Delta_interface*Delta_interface)*1e-7*dt;
     // double ps_tolerance = 0.000000001/dt; //0.0001/dt;
-    double ps_tolerance = 1e-4;//0.000001;//1e-4;//0.000001;//0.00000001;//0.00000001;//0.00000001/dt; //0.0001/dt;
+    double ps_tolerance = 1e-6;//1e-4;//0.000001;//1e-4;//0.000001;//0.00000001;//0.00000001;//0.00000001/dt; //0.0001/dt;
      foreach(){
         ps[] = 0.0;
      }

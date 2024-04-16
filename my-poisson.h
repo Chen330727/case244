@@ -759,7 +759,7 @@ mgstats project_source (struct Project_s q)
 // TOLERANCE = 1e-6/dt; 
 TOLERANCE = 1e-3/dt; //1e-3/dt;
 if(maxl==11){
-TOLERANCE = 1e-2/dt; //1e-3/dt;
+TOLERANCE = 1e-3/dt; //1e-3/dt;
 } 
 mgstats mgp = poisson (p, div, alpha,
 			 tolerance = TOLERANCE, nrelax = nrelax);
