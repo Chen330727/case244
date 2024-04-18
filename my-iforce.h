@@ -198,23 +198,23 @@ normalize(&nn_f);
                   sf0=0;
               }
             }else{
-            //      if(topo_mask_s[]!=0){
-            //           if(is_phase(sf1)){
-            //               sf1=1;
-            //           }else{
-            //               sf1=0;
-            //           }
-            //       }else{ //topo_mask_s[]==1
-            //           if(ff[]>0 && ff[]<1.0){
-            //               sf1=1;
-            //           }else{ //ff[]<=0 or ff[]>=1
-            //               if(is_phase(sf1)){
-            //                   sf1=1;
-            //               }else{
-            //                   sf1=0;
-            //               }
-            //           }
-            //       }
+                //  if(topo_mask_s[]!=0){
+                //       if(is_phase(sf1)){
+                //           sf1=1;
+                //       }else{
+                //           sf1=0;
+                //       }
+                //   }else{ //topo_mask_s[]==1
+                //       if(ff[]>0 && ff[]<1.0){
+                //           sf1=1;
+                //       }else{ //ff[]<=0 or ff[]>=1
+                //           if(is_phase(sf1)){
+                //               sf1=1;
+                //           }else{
+                //               sf1=0;
+                //           }
+                //       }
+                //   }
             //       if(topo_mask_s[-1]!=0){
             //           if(is_phase(sf0)){
             //               sf0=1;
