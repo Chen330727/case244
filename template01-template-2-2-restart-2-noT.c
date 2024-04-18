@@ -2390,19 +2390,19 @@ if(dump_each_event && (i%dump_each_event_interval==0)){
       }
   }
   // if(i%3==0){
-    scalar ff_remove[];
-    foreach(){
-      ff_remove[]=0.0;
-      if(cs[]>0.0){
-        ff_remove[] = ff[];
-      }
-    }
-    remove_droplets (ff_remove,3,1e-10, false);
-    foreach(){
-       if(cs[]>0.0){
-          ff[] = ff_remove[];
-       }
-    }
+    // // scalar ff_remove[];
+    // // foreach(){
+    // //   ff_remove[]=0.0;
+    // //   if(cs[]>0.0){
+    // //     ff_remove[] = ff[];
+    // //   }
+    // // }
+    // // remove_droplets (ff_remove,3,1e-10, false);
+    // // foreach(){
+    // //    if(cs[]>0.0){
+    // //       ff[] = ff_remove[];
+    // //    }
+    // // }
   // }
 
     // remove_droplets (ff,3,1e-10, false);
