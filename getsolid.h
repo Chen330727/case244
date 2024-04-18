@@ -2493,7 +2493,7 @@ void solver_new(scalar poisson_s,double percent_s,double percent_l,double percen
 //    }
 
 foreach(){
-   if(fabs(merge_to_me_s_c[])>1e-7){
+   if(level==level_interface && fabs(merge_to_me_s_c[])>1e-7){
        int ii,jj;
        ii = merge_to_me_s_position.x[];
        jj = merge_to_me_s_position.y[];
@@ -2502,7 +2502,7 @@ foreach(){
 }
 
 foreach(){
-   if(fabs(merge_to_me_l_c[])>1e-7){
+   if(level==level_interface && fabs(merge_to_me_l_c[])>1e-7){
        int ii,jj;
        ii = merge_to_me_l_position.x[];
        jj = merge_to_me_l_position.y[];
@@ -2511,7 +2511,7 @@ foreach(){
 }
 
 foreach(){
-   if(fabs(merge_to_me_g_c[])>1e-7){
+   if(level==level_interface && fabs(merge_to_me_g_c[])>1e-7){
        int ii,jj;
        ii = merge_to_me_g_position.x[];
        jj = merge_to_me_g_position.y[];
@@ -2536,6 +2536,34 @@ restriction({Ts,Tl,Tg});
 
 
 poisson_solver(poisson_s,percent_s,percent_l,percent_g);
+
+
+foreach(){
+   if(level==level_interface && fabs(merge_to_me_s_c[])>1e-7){
+       int ii,jj;
+       ii = merge_to_me_s_position.x[];
+       jj = merge_to_me_s_position.y[];
+       Ts[] = Ts[ii,jj];
+   }
+}
+
+foreach(){
+   if(level==level_interface && fabs(merge_to_me_l_c[])>1e-7){
+       int ii,jj;
+       ii = merge_to_me_l_position.x[];
+       jj = merge_to_me_l_position.y[];
+       Tl[] = Tl[ii,jj];
+   }
+}
+
+foreach(){
+   if(level==level_interface && fabs(merge_to_me_g_c[])>1e-7){
+       int ii,jj;
+       ii = merge_to_me_g_position.x[];
+       jj = merge_to_me_g_position.y[];
+       Tg[] = Tg[ii,jj];
+   }
+}
 
 }
 

@@ -211,6 +211,55 @@ foreach(){
     }
 
 }
+///////////////////
+//let the units of flux_l, flux_g, flux_lg_l, flux_lg_g, flux_s_6 be the same
+foreach(){
+    if(level==level_interface){ //flux accross solid surface
+        if(css_test3[]>0.0 && css_test3[]<1.0){
+                        double flux_i=0.0;
+                        // flux_i = flux_l[]/Delta*areasl[]/Delta + flux_g[]/Delta*areasg[]/Delta + percent_s*poisson_s[] + flux_s_6[];
+                        flux_l[] = flux_l[]/Delta*areasl[]/Delta;
+                        flux_g[] = flux_g[]/Delta*areasg[]/Delta;
+                        flux_s_6[] = 0; //T_modl or T_modg  !=6
+                        flux_l_6[] = 0;
+                        flux_g_6[] = 0;
+        }else{
+            flux_l[] = 0;
+            flux_g[] = 0;
+            flux_s_6[] = 0;
+            flux_l_6[] = 0;
+            flux_g_6[] = 0;
+        }
+
+        if(cs[]>0.0){
+            if(ff[]<1.0 && ff[]>0.0){
+                flux_lg_l[] = 0;
+                flux_lg_g[] = 0;
+            }
+        }else{
+            flux_lg_l[] = 0;
+            flux_lg_g[] = 0;
+        }
+        poisson_s[] = poisson_s[];
+    }else{
+        flux_l[] = 0;
+        flux_g[] = 0;
+        flux_lg_l[] = 0;
+        flux_lg_g[] = 0;
+        poisson_s[] = 0;
+        flux_s_6[] = 0;
+        flux_l_6[] = 0;
+        flux_g_6[] = 0;
+    }
+}
+flux_l.restriction = restriction_flux_sum;
+flux_g.restriction = restriction_flux_sum;
+flux_s_6.restriction = restriction_flux_sum;
+flux_lg_l.restriction = restriction_flux_sum;
+flux_lg_g.restriction = restriction_flux_sum;
+poisson_s.restriction = restriction_flux_sum;
+
+
 
 scalar Ts_old[],Tl_old[],Tg_old[];
 ///flux_l is the flux across solid and fluid surface
@@ -295,7 +344,7 @@ for(itt=1;itt<=maxitt;itt++){
                     if(css_test3[]>0.0 && css_test3[]<1.0){ //flux accross solid surface
                         double flux_i=0.0;
                         // flux_i = flux_l[]/Delta*areasl[]/Delta + flux_g[]/Delta*areasg[]/Delta + percent_s*poisson_s[] + flux_s_6[];
-                        flux_i = flux_l[]/Delta*areasl[]/Delta + flux_g[]/Delta*areasg[]/Delta  + flux_s_6[];
+                        flux_i = flux_l[] + flux_g[]  + flux_s_6[];
                         total += flux_i;
                     }
                         //left
@@ -313,7 +362,7 @@ for(itt=1;itt<=maxitt;itt++){
                                 if((ii==1) && (jj==0)){ //now merge time
                                     //flux across surface
                                     double flux_i=0.0;
-                                    flux_i = flux_l[-1,0]/Delta*areasl[-1,0]/Delta + flux_g[-1,0]/Delta*areasg[-1,0]/Delta + percent_s*poisson_s[-1,0] + flux_s_6[-1,0];
+                                    flux_i = flux_l[-1,0] + flux_g[-1,0] + percent_s*poisson_s[-1,0] + flux_s_6[-1,0];
                                     total += flux_i;
                                     A3 += Trhos*Tcps/dt*cm_css_test3[-1,0];
                                     A4 += Trhos*Tcps/dt*cm_css_test3[-1,0];
@@ -336,7 +385,7 @@ for(itt=1;itt<=maxitt;itt++){
                                 if((ii==-1) && (jj==0)){
                                     //flux across surface
                                     double flux_i=0.0;
-                                    flux_i = flux_l[1,0]/Delta*areasl[1,0]/Delta + flux_g[1,0]/Delta*areasg[1,0]/Delta + percent_s*poisson_s[1,0]+flux_s_6[1,0];
+                                    flux_i = flux_l[1,0] + flux_g[1,0] + percent_s*poisson_s[1,0]+flux_s_6[1,0];
                                     total += flux_i;
                                     A3 += Trhos*Tcps/dt*cm_css_test3[1,0];
                                     A4 += Trhos*Tcps/dt*cm_css_test3[1,0];
@@ -359,7 +408,7 @@ for(itt=1;itt<=maxitt;itt++){
                                 if((ii==0) && (jj==1)){
                                     //flux across surface
                                     double flux_i=0.0;
-                                    flux_i = flux_l[0,-1]/Delta*areasl[0,-1]/Delta + flux_g[0,-1]/Delta*areasg[0,-1]/Delta + percent_s*poisson_s[0,-1] + flux_s_6[0,-1];
+                                    flux_i = flux_l[0,-1] + flux_g[0,-1] + percent_s*poisson_s[0,-1] + flux_s_6[0,-1];
                                     total += flux_i;
                                     A3 += Trhos*Tcps/dt*cm_css_test3[0,-1];
                                     A4 += Trhos*Tcps/dt*cm_css_test3[0,-1];
@@ -382,7 +431,7 @@ for(itt=1;itt<=maxitt;itt++){
                                 if((ii==0) && (jj==-1)){
                                     //flux across surface
                                     double flux_i=0.0;
-                                    flux_i = flux_l[0,1]/Delta*areasl[0,1]/Delta + flux_g[0,1]/Delta*areasg[0,1]/Delta + percent_s*poisson_s[0,1]+ flux_s_6[0,1];
+                                    flux_i = flux_l[0,1] + flux_g[0,1] + percent_s*poisson_s[0,1]+ flux_s_6[0,1];
                                     total += flux_i;
                                     A3 += Trhos*Tcps/dt*cm_css_test3[0,1];
                                     A4 += Trhos*Tcps/dt*cm_css_test3[0,1];
@@ -394,6 +443,12 @@ for(itt=1;itt<=maxitt;itt++){
                 // if(css_test3[]>=0.5){
                 if(css_test3[]>0){
                     flag=true;
+                    if(css_test3[]>0.0 && css_test3[]<1.0){ //flux accross solid surface
+                        double flux_i=0.0;
+                        // flux_i = flux_l[]/Delta*areasl[]/Delta + flux_g[]/Delta*areasg[]/Delta + percent_s*poisson_s[] + flux_s_6[];
+                        flux_i = flux_l[] + flux_g[]  + flux_s_6[];
+                        total += flux_i;
+                    }
                     //4faces
                     foreach_dimension(){
                         if(css_test3[-1]>0.0){
@@ -436,7 +491,7 @@ for(itt=1;itt<=maxitt;itt++){
                 if(css_test3[]>0.0 && css_test3[]<1.0){
                     double flux_i=0.0;
                     // flux_i = (-flux_l[])/Delta*areasl[]/Delta + percent_l*poisson_s[] + flux_l_6[];
-                    flux_i = (-flux_l[])/Delta*areasl[]/Delta  + flux_l_6[];
+                    flux_i = (-flux_l[])  + flux_l_6[];
                     total_l += flux_i;
                 }
                 //if there is fluid interface in the cell
@@ -465,7 +520,7 @@ for(itt=1;itt<=maxitt;itt++){
                                         if(css_test3[-1,0]<1.0 && css_test3[-1,0]>0){ //0.5< <1.0
                                             //solid interface
                                             double flux_i=0.0;
-                                            flux_i = (-flux_l[-1,0])/Delta*areasl[-1,0]/Delta  + percent_l*poisson_s[-1,0] + flux_l_6[-1,0];
+                                            flux_i = (-flux_l[-1,0])  + percent_l*poisson_s[-1,0] + flux_l_6[-1,0];
                                             total_l += flux_i;
                                         }
                                         //merge_energy_from fluid
@@ -499,7 +554,7 @@ for(itt=1;itt<=maxitt;itt++){
                                         if(css_test3[1,0]<1.0 && css_test3[1,0]>0){ //0.5< <1.0
                                             //solid interface
                                             double flux_i=0.0;
-                                            flux_i = (-flux_l[1,0])/Delta*areasl[1,0]/Delta  + percent_l*poisson_s[1,0]+ flux_l_6[1,0];
+                                            flux_i = (-flux_l[1,0])  + percent_l*poisson_s[1,0]+ flux_l_6[1,0];
                                             total_l += flux_i;
                                         }
                                         //merge_energy_from fluid
@@ -533,7 +588,7 @@ for(itt=1;itt<=maxitt;itt++){
                                         if(css_test3[0,-1]<1.0 && css_test3[0,-1]>0.0){ //0.5< <1.0
                                             //solid interface
                                             double flux_i=0.0;
-                                            flux_i = (-flux_l[0,-1])/Delta*areasl[0,-1]/Delta  + percent_l*poisson_s[0,-1]+ flux_l_6[0,-1];
+                                            flux_i = (-flux_l[0,-1]) + percent_l*poisson_s[0,-1]+ flux_l_6[0,-1];
                                             total_l += flux_i;
                                         }
                                         //merge_energy_from fluid
@@ -567,7 +622,7 @@ for(itt=1;itt<=maxitt;itt++){
                                         if(css_test3[0,1]<1.0 && css_test3[0,1]>0.0){ //0.5< <1.0
                                             //solid interface
                                             double flux_i=0.0;
-                                            flux_i = (-flux_l[0,1])/Delta*areasl[0,1]/Delta  + percent_l*poisson_s[0,1]+ flux_l_6[0,1];
+                                            flux_i = (-flux_l[0,1])  + percent_l*poisson_s[0,1]+ flux_l_6[0,1];
                                             total_l += flux_i;
                                         }
                                         //merge_energy_from fluid
@@ -588,6 +643,20 @@ for(itt=1;itt<=maxitt;itt++){
                // if(css_test3[]<0.5 && css_test[]>=0.5){
                 if(css_test3[]<1 && css_test[]>0){
                     flag = true;
+                     if(css_test3[]>0.0 && css_test3[]<1.0){
+                        double flux_i=0.0;
+                        // flux_i = (-flux_l[])/Delta*areasl[]/Delta + percent_l*poisson_s[] + flux_l_6[];
+                        flux_i = (-flux_l[])  + flux_l_6[];
+                        total_l += flux_i;
+                    }
+                    //if there is fluid interface in the cell
+                    if(css_test3[]<1.0){
+                        if(css_test[]>0 && css_test[]<1.0){
+                            // flux across the interface between gas and liquid
+                            // - mua/(fa + SEPS)*gradl2*arealg/Delta;
+                            total_l += flux_lg_l[];
+                        }
+                    }
                     foreach_dimension(){
                         // if(css_test3[-1]<0.5 && css_test[-1]>0.0){
                         if(css_test[-1]>0.0){
@@ -630,7 +699,7 @@ for(itt=1;itt<=maxitt;itt++){
                     if(css_test3[]>0.0 && css_test3[]<1.0){
                         double flux_i=0.0;
                         // flux_i = (-flux_g[])/Delta*areasg[]/Delta  + percent_g*poisson_s[] + flux_g_6[];
-                        flux_i = (-flux_g[])/Delta*areasg[]/Delta   + flux_g_6[];
+                        flux_i = (-flux_g[])   + flux_g_6[];
                         total_g += flux_i;
                     }
                 //if there is fluid interface in the cell
@@ -658,7 +727,7 @@ for(itt=1;itt<=maxitt;itt++){
                                         if(css_test3[-1,0]<1.0 && css_test3[-1,0]>0.0){ //0.5< <1.0
                                             //solid interface
                                             double flux_i=0.0;
-                                            flux_i = (-flux_g[-1,0])/Delta*areasg[-1,0]/Delta + percent_g*poisson_s[-1,0]+ flux_g_6[-1,0];
+                                            flux_i = (-flux_g[-1,0]) + percent_g*poisson_s[-1,0]+ flux_g_6[-1,0];
                                             total_g += flux_i;
                                         }
                                         //merge_energy_from fluid
@@ -692,7 +761,7 @@ for(itt=1;itt<=maxitt;itt++){
                                         if(css_test3[1,0]<1.0 && css_test3[1,0]>0){ //0.5< <1.0
                                             //solid interface
                                             double flux_i=0.0;
-                                            flux_i = (-flux_g[1,0])/Delta*areasg[1,0]/Delta + percent_g*poisson_s[1,0]+ flux_g_6[1,0];
+                                            flux_i = (-flux_g[1,0])+ percent_g*poisson_s[1,0]+ flux_g_6[1,0];
                                             total_g += flux_i;
                                         }
                                         //merge_energy_from fluid
@@ -726,7 +795,7 @@ for(itt=1;itt<=maxitt;itt++){
                                         if(css_test3[0,-1]<1.0 && css_test3[0,-1]>0.0){ //0.5< <1.0
                                             //solid interface
                                             double flux_i=0.0;
-                                            flux_i = (-flux_g[0,-1])/Delta*areasg[0,-1]/Delta  + percent_g*poisson_s[0,-1]+ flux_g_6[0,-1];
+                                            flux_i = (-flux_g[0,-1])  + percent_g*poisson_s[0,-1]+ flux_g_6[0,-1];
                                             total_g += flux_i;
                                         }
                                         //merge_energy_from fluid
@@ -760,7 +829,7 @@ for(itt=1;itt<=maxitt;itt++){
                                         if(css_test3[0,1]<1.0 && css_test3[0,1]>0.0){ //0.5< <1.0
                                             //solid interface
                                             double flux_i=0.0;
-                                            flux_i = (-flux_g[0,1])/Delta*areasg[0,1]/Delta + percent_g*poisson_s[0,1]+ flux_g_6[0,1];
+                                            flux_i = (-flux_g[0,1]) + percent_g*poisson_s[0,1]+ flux_g_6[0,1];
                                             total_g += flux_i;
                                         }
                                         //merge_energy_from fluid
@@ -781,6 +850,19 @@ for(itt=1;itt<=maxitt;itt++){
                 if(css_test3[]<1.0 && css_test2[]>0){
                     flag=true;
                     //4faces
+                    if(css_test3[]>0.0 && css_test3[]<1.0){
+                            double flux_i=0.0;
+                            // flux_i = (-flux_g[])/Delta*areasg[]/Delta  + percent_g*poisson_s[] + flux_g_6[];
+                            flux_i = (-flux_g[])   + flux_g_6[];
+                            total_g += flux_i;
+                        }
+                    //if there is fluid interface in the cell
+                    if(css_test3[]<1.0){
+                        if(css_test2[]>0 && css_test2[]<1.0){
+                            // flux across the interface between gas and liquid
+                            total_g += flux_lg_g[];
+                        }
+                    }
                     foreach_dimension(){
                         // if(css_test3[-1]<0.5 && css_test2[-1]>0.0){
                         if(css_test2[-1]>0.0){
@@ -833,7 +915,7 @@ if(itt%1==0){
                     if(css_test3[]>0.0 && css_test3[]<1.0){ //flux accross solid surface
                         double flux_i=0.0;
                         // flux_i = flux_l[]/Delta*areasl[]/Delta + flux_g[]/Delta*areasg[]/Delta  + percent_s*poisson_s[]+ flux_s_6[];
-                        flux_i = flux_l[]/Delta*areasl[]/Delta + flux_g[]/Delta*areasg[]/Delta  + flux_s_6[];
+                        flux_i = flux_l[] + flux_g[]  + flux_s_6[];
                         total += flux_i;
                     }
                         //left
@@ -851,7 +933,7 @@ if(itt%1==0){
                                 if((ii==1) && (jj==0)){
                                     //flux across surface
                                     double flux_i=0.0;
-                                    flux_i = flux_l[-1,0]/Delta*areasl[-1,0]/Delta + flux_g[-1,0]/Delta*areasg[-1,0]/Delta  + percent_s*poisson_s[-1,0]+ flux_s_6[-1,0];
+                                    flux_i = flux_l[-1,0] + flux_g[-1,0] + percent_s*poisson_s[-1,0]+ flux_s_6[-1,0];
                                     total += flux_i;
                                     A3 += Trhos*Tcps/dt*cm_css_test3[-1,0];
                                     A4 += Trhos*Tcps/dt*cm_css_test3[-1,0];
@@ -875,7 +957,7 @@ if(itt%1==0){
                                 if((ii==-1) && (jj==0)){
                                     //flux across surface
                                     double flux_i=0.0;
-                                    flux_i = flux_l[1,0]/Delta*areasl[1,0]/Delta + flux_g[1,0]/Delta*areasg[1,0]/Delta + percent_s*poisson_s[1,0]+ flux_s_6[1,0];
+                                    flux_i = flux_l[1,0] + flux_g[1,0] + percent_s*poisson_s[1,0]+ flux_s_6[1,0];
                                     total += flux_i;
                                     A3 += Trhos*Tcps/dt*cm_css_test3[1,0];
                                     A4 += Trhos*Tcps/dt*cm_css_test3[1,0];
@@ -898,7 +980,7 @@ if(itt%1==0){
                                 if((ii==0) && (jj==1)){
                                     //flux across surface
                                     double flux_i=0.0;
-                                    flux_i = flux_l[0,-1]/Delta*areasl[0,-1]/Delta + flux_g[0,-1]/Delta*areasg[0,-1]/Delta + percent_s*poisson_s[0,-1] + flux_s_6[0,-1];
+                                    flux_i = flux_l[0,-1] + flux_g[0,-1] + percent_s*poisson_s[0,-1] + flux_s_6[0,-1];
                                     total += flux_i;
                                     A3 += Trhos*Tcps/dt*cm_css_test3[0,-1];
                                     A4 += Trhos*Tcps/dt*cm_css_test3[0,-1];
@@ -921,7 +1003,7 @@ if(itt%1==0){
                                 if((ii==0) && (jj==-1)){
                                     //flux across surface
                                     double flux_i=0.0;
-                                    flux_i = flux_l[0,1]/Delta*areasl[0,1]/Delta + flux_g[0,1]/Delta*areasg[0,1]/Delta  + percent_s*poisson_s[0,1]+ flux_s_6[0,1];
+                                    flux_i = flux_l[0,1] + flux_g[0,1]  + percent_s*poisson_s[0,1]+ flux_s_6[0,1];
                                     total += flux_i;
                                      A3 += Trhos*Tcps/dt*cm_css_test3[0,1];
                                      A4 += Trhos*Tcps/dt*cm_css_test3[0,1];
@@ -934,6 +1016,12 @@ if(itt%1==0){
                  // if(css_test3[]>=0.5){
                 if(css_test3[]>0){
                     flag_s = true;
+                     if(css_test3[]>0.0 && css_test3[]<1.0){ //flux accross solid surface
+                        double flux_i=0.0;
+                        // flux_i = flux_l[]/Delta*areasl[]/Delta + flux_g[]/Delta*areasg[]/Delta  + percent_s*poisson_s[]+ flux_s_6[];
+                        flux_i = flux_l[] + flux_g[]  + flux_s_6[];
+                        total += flux_i;
+                    }
                     //4faces
                     foreach_dimension(){
                         if(css_test3[-1]>0.0){
@@ -974,7 +1062,7 @@ if(itt%1==0){
                     if(css_test3[]>0.0 && css_test3[]<1.0){
                         double flux_i=0.0;
                         // flux_i = (-flux_l[])/Delta*areasl[]/Delta + percent_l*poisson_s[]+ flux_l_6[];
-                        flux_i = (-flux_l[])/Delta*areasl[]/Delta + flux_l_6[];
+                        flux_i = (-flux_l[]) + flux_l_6[];
                         total_l += flux_i;
                     }
                 //if there is fluid interface in the cell
@@ -1002,7 +1090,7 @@ if(itt%1==0){
                                         if(css_test3[-1,0]<1.0 && css_test3[-1,0]>0.0){ //0.5< <1.0
                                             //solid interface
                                             double flux_i=0.0;
-                                            flux_i = (-flux_l[-1,0])/Delta*areasl[-1,0]/Delta  + percent_l*poisson_s[-1,0]+ flux_l_6[-1,0];
+                                            flux_i = (-flux_l[-1,0])  + percent_l*poisson_s[-1,0]+ flux_l_6[-1,0];
                                             total_l += flux_i;
                                         }
                                         //merge_energy_from fluid
@@ -1036,7 +1124,7 @@ if(itt%1==0){
                                         if(css_test3[1,0]<1.0 && css_test3[1,0]>0.0){ //0.5< <1.0
                                             //solid interface
                                             double flux_i=0.0;
-                                            flux_i = (-flux_l[1,0])/Delta*areasl[1,0]/Delta + percent_l*poisson_s[1,0]+ flux_l_6[1,0];
+                                            flux_i = (-flux_l[1,0]) + percent_l*poisson_s[1,0]+ flux_l_6[1,0];
                                             total_l += flux_i;
                                         }
                                         //merge_energy_from fluid
@@ -1071,7 +1159,7 @@ if(itt%1==0){
                                         if(css_test3[0,-1]<1.0 && css_test3[0,-1]>0.0){ //0.5< <1.0
                                             //solid interface
                                             double flux_i=0.0;
-                                            flux_i = (-flux_l[0,-1])/Delta*areasl[0,-1]/Delta + percent_l*poisson_s[0,-1]+ flux_l_6[0,-1];
+                                            flux_i = (-flux_l[0,-1]) + percent_l*poisson_s[0,-1]+ flux_l_6[0,-1];
                                             total_l += flux_i;
                                         }
                                         //merge_energy_from fluid
@@ -1105,7 +1193,7 @@ if(itt%1==0){
                                         if(css_test3[0,1]<1.0 && css_test3[0,1]>0.0){ //0.5< <1.0
                                             //solid interface
                                             double flux_i=0.0;
-                                            flux_i = (-flux_l[0,1])/Delta*areasl[0,1]/Delta  + percent_l*poisson_s[0,1]+ flux_l_6[0,1];
+                                            flux_i = (-flux_l[0,1])  + percent_l*poisson_s[0,1]+ flux_l_6[0,1];
                                             total_l += flux_i;
                                         }
                                         //merge_energy_from fluid
@@ -1127,6 +1215,20 @@ if(itt%1==0){
                // if(css_test3[]<0.5 && css_test[]>=0.5){
                  if(css_test3[]<1 && css_test[]>0){
                     flag_l=true;
+                    //if there is solid interface in the cell
+                    if(css_test3[]>0.0 && css_test3[]<1.0){
+                            double flux_i=0.0;
+                            // flux_i = (-flux_l[])/Delta*areasl[]/Delta + percent_l*poisson_s[]+ flux_l_6[];
+                            flux_i = (-flux_l[]) + flux_l_6[];
+                            total_l += flux_i;
+                        }
+                    //if there is fluid interface in the cell
+                    if(css_test3[]<1.0){
+                        if(css_test[]>0 && css_test[]<1.0){
+                            // flux across the interface between gas and liquid
+                            total_l += flux_lg_l[];
+                        }
+                    }
                     //4faces
                     foreach_dimension(){
                         // if(css_test3[-1]<0.5 && css_test[-1]>0.0){
@@ -1169,7 +1271,7 @@ if(itt%1==0){
                     if(css_test3[]>0.0 && css_test3[]<1.0){
                         double flux_i=0.0;
                         // flux_i = (-flux_g[])/Delta*areasg[]/Delta  + percent_g*poisson_s[]+ flux_g_6[];
-                        flux_i = (-flux_g[])/Delta*areasg[]/Delta + flux_g_6[];
+                        flux_i = (-flux_g[]) + flux_g_6[];
                         total_g += flux_i;
                     }
                 //if there is fluid interface in the cell
@@ -1197,7 +1299,7 @@ if(itt%1==0){
                                         if(css_test3[-1,0]<1.0 && css_test3[-1,0]>0.0){ //0.5< <1.0
                                             //solid interface
                                             double flux_i=0.0;
-                                            flux_i = (-flux_g[-1,0])/Delta*areasg[-1,0]/Delta + percent_g*poisson_s[-1,0]+ flux_g_6[-1,0];
+                                            flux_i = (-flux_g[-1,0]) + percent_g*poisson_s[-1,0]+ flux_g_6[-1,0];
                                             total_g += flux_i;
                                         }
                                         //merge_energy_from fluid
@@ -1231,7 +1333,7 @@ if(itt%1==0){
                                         if(css_test3[1,0]<1.0 && css_test3[1,0]>0.0){ //0.5< <1.0
                                             //solid interface
                                             double flux_i=0.0;
-                                            flux_i = (-flux_g[1,0])/Delta*areasg[1,0]/Delta + percent_g*poisson_s[1,0]+ flux_g_6[1,0];
+                                            flux_i = (-flux_g[1,0]) + percent_g*poisson_s[1,0]+ flux_g_6[1,0];
                                             total_g += flux_i;
                                         }
                                         //merge_energy_from fluid
@@ -1265,7 +1367,7 @@ if(itt%1==0){
                                         if(css_test3[0,-1]<1.0 && css_test3[0,-1]>0.0){ //0.5< <1.0
                                             //solid interface
                                             double flux_i=0.0;
-                                            flux_i = (-flux_g[0,-1])/Delta*areasg[0,-1]/Delta + percent_g*poisson_s[0,-1]+ flux_g_6[0,-1];
+                                            flux_i = (-flux_g[0,-1]) + percent_g*poisson_s[0,-1]+ flux_g_6[0,-1];
                                             total_g += flux_i;
                                         }
                                         //merge_energy_from fluid
@@ -1299,7 +1401,7 @@ if(itt%1==0){
                                         if(css_test3[0,1]<1.0 && css_test3[0,1]>0){ //0.5< <1.0
                                             //solid interface
                                             double flux_i=0.0;
-                                            flux_i = (-flux_g[0,1])/Delta*areasg[0,1]/Delta + percent_g*poisson_s[0,1]+ flux_g_6[0,1];
+                                            flux_i = (-flux_g[0,1]) + percent_g*poisson_s[0,1]+ flux_g_6[0,1];
                                             total_g += flux_i;
                                         }
                                         //merge_energy_from fluid
@@ -1320,6 +1422,19 @@ if(itt%1==0){
                 // if(css_test3[]<0.5 && css_test2[]>=0.5){
                 if(css_test3[]<1.0 && css_test2[]>0){
                     flag_g=true;
+                     if(css_test3[]>0.0 && css_test3[]<1.0){
+                            double flux_i=0.0;
+                            // flux_i = (-flux_g[])/Delta*areasg[]/Delta  + percent_g*poisson_s[]+ flux_g_6[];
+                            flux_i = (-flux_g[]) + flux_g_6[];
+                            total_g += flux_i;
+                        }
+                    //if there is fluid interface in the cell
+                    if(css_test3[]<1.0){
+                        if(css_test2[]>0 && css_test2[]<1.0){
+                            // flux across the interface between gas and liquid
+                            total_g += flux_lg_g[];
+                        }
+                    }
                     //4faces
                     foreach_dimension(){
                         // if(css_test3[-1]<0.5 && css_test2[-1]>0.0){
