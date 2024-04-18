@@ -255,11 +255,14 @@ foreach(){
 flux_l.restriction = restriction_flux_sum;
 flux_g.restriction = restriction_flux_sum;
 flux_s_6.restriction = restriction_flux_sum;
+flux_l_6.restriction = restriction_flux_sum;
+flux_g_6.restriction = restriction_flux_sum;
 flux_lg_l.restriction = restriction_flux_sum;
 flux_lg_g.restriction = restriction_flux_sum;
 poisson_s.restriction = restriction_flux_sum;
 
-
+restriction({flux_l,flux_g,flux_lg_l,flux_lg_g,poisson_s});
+restriction({flux_s_6,flux_l_6,flux_g_6});
 
 scalar Ts_old[],Tl_old[],Tg_old[];
 ///flux_l is the flux across solid and fluid surface
