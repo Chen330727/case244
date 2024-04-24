@@ -1,7 +1,9 @@
 mesu-nobased/*
+!mesu-nobased/*.sh
 volume.dat
 dump-i*
 *.dat
 *.png
 .qcc*
 could_delete/*
+
