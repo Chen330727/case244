@@ -161,7 +161,7 @@ double T_tolerance = 1e-6;
 //     T_tolerance = 1e-5;
 // }
 if(maxl==11){
-    T_tolerance = 1e-6;
+    T_tolerance = 1e-8;
 }
 foreach(){
     ff_oppo[] = 1.0 - ff[];
@@ -233,8 +233,8 @@ foreach(){
 
         if(cs[]>0.0){
             if(ff[]<1.0 && ff[]>0.0){
-                flux_lg_l[] = 0;
-                flux_lg_g[] = 0;
+                flux_lg_l[] = flux_lg_l[];
+                flux_lg_g[] = flux_lg_g[];
             }
         }else{
             flux_lg_l[] = 0;

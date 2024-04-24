@@ -991,7 +991,7 @@ void solid_phi(double base, vertex scalar phi){
 event init (t = 0)
 {
   // CFL = 0.5;//0.01; // mesu3-14
-  CFL = 0.4;//0.4;//0.2;//0.02; //mesu3-15
+  CFL = 0.05;//0.4;//0.2;//0.02; //mesu3-15
   if(poisson_check){
       if(pid()==0){
            char name93[80];
@@ -2390,19 +2390,19 @@ if(dump_each_event && (i%dump_each_event_interval==0)){
       }
   }
   // if(i%3==0){
-    scalar ff_remove[];
-    foreach(){
-      ff_remove[]=0.0;
-      if(cs[]>0.0){
-        ff_remove[] = ff[];
-      }
-    }
-    remove_droplets (ff_remove,3,1e-10, false);
-    foreach(){
-       if(cs[]>0.0){
-          ff[] = ff_remove[];
-       }
-    }
+    // // scalar ff_remove[];
+    // // foreach(){
+    // //   ff_remove[]=0.0;
+    // //   if(cs[]>0.0){
+    // //     ff_remove[] = ff[];
+    // //   }
+    // // }
+    // // remove_droplets (ff_remove,3,1e-10, false);
+    // // foreach(){
+    // //    if(cs[]>0.0){
+    // //       ff[] = ff_remove[];
+    // //    }
+    // // }
   // }
 
     // remove_droplets (ff,3,1e-10, false);
