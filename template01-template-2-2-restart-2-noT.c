@@ -3194,12 +3194,12 @@ if(i>=0){
 
 event get_ulf(i++,last){
   //  ulf_function(); // checked for 3D
-  if(i==83220){
-      dump("i83220");
-  }
-  if(i==83320){
-      dump("i83320");
-  }
+  // if(i==83220){
+  //     dump("i83220");
+  // }
+  // if(i==83320){
+  //     dump("i83320");
+  // }
   if(i>=1){
     ulf_ugf_function(topo_mask,topo_mask_g);
   }
