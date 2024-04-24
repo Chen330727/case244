@@ -6,4 +6,5 @@ dump-i*
 *.png
 .qcc*
 could_delete/*
+outfacets/*
 
