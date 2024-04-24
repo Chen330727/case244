@@ -161,7 +161,7 @@ double T_tolerance = 1e-6;
 //     T_tolerance = 1e-5;
 // }
 if(maxl==11){
-    T_tolerance = 1e-8;
+    T_tolerance = 1e-6;
 }
 foreach(){
     ff_oppo[] = 1.0 - ff[];
